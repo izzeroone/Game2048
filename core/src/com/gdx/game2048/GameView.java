@@ -126,7 +126,7 @@ public class GameView extends ApplicationAdapter {
 
     @Override
     public void resize(int width, int height) {
-        super.resize(width, height);
+        //super.resize(width, height);
         makeLayout(width, height);
     }
 
@@ -391,7 +391,6 @@ public class GameView extends ApplicationAdapter {
     private void makeLayout(int width, int height){
         int staticCellSize = (5 * width / 9) / 4;
         cellSize = (5 * width / 9) / game.numCellY;
-        cellSize = 50;
         //padding width
         gridWidth = cellSize * 2 / 3;
         int screenMidX = width / 2;

@@ -23,9 +23,7 @@ public class MainGame {
     public GameState gameState = GameState.NORMAL;
     public GameState lastGameState = GameState.NORMAL;
     public GameState bufferGameState = GameState.NORMAL;
-    public Grid winGrid = null; // winning condition of the game
     public Grid grid = null;
-    public Grid tempGrid = null;
     public AnimationGrid animationGrid;
     public boolean canUndo;
     public long score = 0;
@@ -59,15 +57,6 @@ public class MainGame {
             grid.clearGrid();
         }
 
-        //avoid create winGrid multi time
-        if(winGrid == null){
-            winGrid = new Grid(numCellX, numCellY);
-        }
-
-        //create tempGrid to exchange winGrid and grid
-        if(tempGrid == null){
-            tempGrid = new Grid(numCellX, numCellY);
-        }
 
         //create animation grid
         animationGrid = new AnimationGrid(numCellX, numCellY);
@@ -75,11 +64,6 @@ public class MainGame {
         score = 0;
         //add start title
         addStartTiles();
-        //save start title to temp
-        copyGridState(tempGrid, grid);
-        //make WinGrid save them to winGrid
-        makeWinningState();
-        copyGridState(winGrid, grid);
         //show the winGrid
         gameState = GameState.READY;
         //reset time
@@ -96,7 +80,6 @@ public class MainGame {
     public void gameStart(){
         if(gameState == GameState.READY){
             //revert back to start gird
-            copyGridState(grid,tempGrid);
             gameState = GameState.NORMAL;
             //clear undo grid a avoid error
             grid.clearUndoGrid();
@@ -149,6 +132,13 @@ public class MainGame {
                     addTile(xx,yy);
                 }
             }
+        }
+    }
+
+    private void addRandomTile(){
+        if (grid.isCellsAvailable()) {
+            Cell cell = grid.randomAvailableCell();
+            addTile(cell.getX(), cell.getY());
         }
     }
 
@@ -284,6 +274,7 @@ public class MainGame {
             //some cell has moved
             //save Undostate and check for Win Lose
             saveUndoState();
+            addRandomTile();
             checkWin();
             checkLose();
         }
@@ -309,7 +300,7 @@ public class MainGame {
 
         if (moved) {
             saveUndoState();
-            //addRandomTile();
+            addRandomTile();
             checkWin();
             checkLose();
         }
@@ -421,7 +412,7 @@ public class MainGame {
     }
 
     private void checkLose() {
-        if(grid.countOccupiedCell() < winGrid.countOccupiedCell() - 1){
+        if(false){
             gameState = GameState.LOST;
 //            MediaPlayerManager.getInstance().pause();
 //            SoundPoolManager.getInstance().playSound(R.raw.you_lost);
@@ -441,21 +432,7 @@ public class MainGame {
     }
 
     private boolean isWin() {
-        for(int xx = 0; xx < grid.field.length; xx++)
-        {
-            for(int yy = 0; yy < grid.field[0].length; yy++)
-            {
-                if(grid.field[xx][yy] == null && winGrid.field[xx][yy] == null)
-                    continue;
-                if(grid.field[xx][yy] == null && winGrid.field[xx][yy] != null)
-                    return false;
-                else if(grid.field[xx][yy] != null && winGrid.field[xx][yy] == null)
-                    return false;
-                else if(grid.field[xx][yy].getValue() != winGrid.field[xx][yy].getValue())
-                    return false;
-            }
-        }
-        return true;
+        return false;
     }
 
 
