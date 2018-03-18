@@ -2,12 +2,16 @@ package com.gdx.game2048;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.gdx.game2048.CellColor.CellsColor;
 import com.gdx.game2048.Shape.CustomShapeRender;
 import javafx.util.Pair;
 
@@ -36,6 +40,7 @@ public class GameView extends ApplicationAdapter {
     private int cellSize;
     private float cellTextSize;
     private int cellPadding;
+    private CellsColor cellsColor = new CellsColor();
 
     //Button
     public boolean restartButtonEnabled = false;
@@ -56,6 +61,9 @@ public class GameView extends ApplicationAdapter {
     public int eYAll;
     public int sYScore;
     public BitmapFont font;
+    public FreeTypeFontGenerator fontGenerator;
+    public FreeTypeFontGenerator.FreeTypeFontParameter fontParameter;
+
 
     //TODO: Hash map font bitmap font render
 
@@ -92,8 +100,12 @@ public class GameView extends ApplicationAdapter {
         try {
             mainTheme = Gdx.audio.newMusic(Gdx.files.internal("music/maintheme.mp3"));
             shapeRender = new CustomShapeRender();
+            fontGenerator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/ClearSans-Bold.ttf"));
+            fontParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+            fontParameter.size = 28;
             font = new BitmapFont(Gdx.files.internal("bitmapfont/Amble-Regular-26.fnt"));
-            font.setColor(com.badlogic.gdx.graphics.Color.RED);
+            font = fontGenerator.generateFont(fontParameter);
+            font.setColor(Color.WHITE);
 
         } catch (Exception e) {
 
@@ -113,7 +125,7 @@ public class GameView extends ApplicationAdapter {
     public void render() {
         super.render();
 
-        super.render();
+        handleInput();
         //Reset the transparency of the screen
         Gdx.gl.glClearColor(1, 1, 1, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
@@ -151,13 +163,17 @@ public class GameView extends ApplicationAdapter {
     }
 
     private void drawCell(int left, int bottom, int right, int top, int value) {
-        shapeRender.roundedRect(left, bottom, right - left, top - bottom, (right - left) / 5);
-        cellsText.add(new Pair<Rectangle, Integer>(new Rectangle(left, top  , 0, 0), value));
+        shapeRender.setColor(cellsColor.getColor(value));
+        shapeRender.circle((left + right) / 2, (bottom + top) / 2, (right - left) / 2) ;
+        //shapeRender.roundedRect(left, bottom, right - left, top - bottom, (right - left) / 5);
+        cellsText.add(new Pair<Rectangle, Integer>(new Rectangle((int)(left + font.getLineHeight() / 2), (int) (top -  font.getLineHeight() / 2)  , 0, 0), value));
     }
 
     private void drawCell(float left, float bottom, float right, float top, int value) {
-        shapeRender.roundedRect(left, bottom, right - left, top - bottom    , (right - left) / 5);
-        cellsText.add(new Pair<Rectangle, Integer>(new Rectangle((int)left, (int)top, 0 ,0), value));
+        shapeRender.setColor(cellsColor.getColor(value));
+        shapeRender.circle((left + right) / 2, (bottom + top) / 2, (right - left) / 2) ;
+        //shapeRender.roundedRect(left, bottom, right - left, top - bottom    , (right - left) / 5);
+        cellsText.add(new Pair<Rectangle, Integer>(new Rectangle((int)(left + font.getLineHeight() / 2), (int)(top - font.getLineHeight() / 2), 0 ,0), value));
 
     }
 
@@ -271,6 +287,30 @@ public class GameView extends ApplicationAdapter {
 
     public void resyncTime() {
         lastFPSTime = System.currentTimeMillis();
+    }
+
+    private void handleInput(){
+        //Don't handle input while there is an active animation
+        if(game.animationGrid.isAnimationActive()){
+            return;
+        }
+
+        if(Gdx.input.isKeyJustPressed(Input.Keys.UP)){
+            System.out.println("Move up");
+            game.move(2);
+        }
+        if(Gdx.input.isKeyJustPressed(Input.Keys.DOWN)){
+            System.out.println("Move ");
+            game.move(0);
+        }
+        if(Gdx.input.isKeyJustPressed(Input.Keys.LEFT)){
+            System.out.println("Move left");
+            game.move(3);
+        }
+        if(Gdx.input.isKeyJustPressed(Input.Keys.RIGHT)){
+            System.out.println("Move right");
+            game.move(1);
+        }
     }
 
 
