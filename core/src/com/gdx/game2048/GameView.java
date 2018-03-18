@@ -4,7 +4,9 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
@@ -13,7 +15,11 @@ import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import java.awt.*;
@@ -44,14 +50,11 @@ public class GameView extends ApplicationAdapter {
     public Stage stage;
     public TextureAtlas gameAtlas;
     public Button homeButton;
+    public Button restartButton;
+    public Button backButton;
     public boolean restartButtonEnabled = false;
     public int iconSize;
     public int iconPaddingSize;
-    public int sYIcons;
-    public int sXNewGame;
-    public int sXUndo;
-    public int sXHome;
-    public int sYHome;
 
     //Text
     public int textPaddingSize;
@@ -59,8 +62,12 @@ public class GameView extends ApplicationAdapter {
     public int subInstructionTextSize;
     public int sYInstruction;
     public int sYSubInstruction;
-    public int eYAll;
-    public int sYScore;
+
+    //Score
+    public Rectangle scoreRect = new Rectangle();
+    public BitmapFont scoreFont;
+    public String gameScore;
+    public TextButton scoreDisplay;
     public FreeTypeFontGenerator fontGenerator;
     public FreeTypeFontGenerator.FreeTypeFontParameter fontParameter;
 
@@ -92,39 +99,21 @@ public class GameView extends ApplicationAdapter {
         fontParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         gameAtlas = new TextureAtlas("themes/default.atlas");
         gameSkin = new Skin(gameAtlas);
-        ImageButton.ImageButtonStyle homeButtonStyle = new ImageButton.ImageButtonStyle();
-        homeButtonStyle.up = gameSkin.getDrawable("ic_home");
-        homeButton = new ImageButton(homeButtonStyle);
 
-        //Setup stage
+        //setup button
+        createButton();
         stage = new Stage(new ScreenViewport());
+        stage.addActor(restartButton);
+        stage.addActor(backButton);
         stage.addActor(homeButton);
-        homeButton.addListener(new InputListener() {
-            public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
-                Gdx.app.log("my app", "Pressed"); //** Usually used to start Game, etc. **//
+        stage.addActor(scoreDisplay);
 
 
-                // TODO Auto-generated method stub
-
-
-
-                return true;
-
-            }
-
-            public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
-                Gdx.app.log("my app", "Rggggggeleased");
-
-                ///and level
-
-                dispose();
-
-            }
-        });
         Gdx.input.setInputProcessor(stage);
 
         //Playing music
     }
+
 
     @Override
     public void resize(int width, int height) {
@@ -144,11 +133,10 @@ public class GameView extends ApplicationAdapter {
 
         batch.begin();
         //Draw cell shape
+        drawScore();
         drawCells();
         batch.end();
 
-        batch.begin();
-        batch.end();
 
         stage.act();
         stage.draw();
@@ -168,11 +156,15 @@ public class GameView extends ApplicationAdapter {
         //For now render cells only
     }
 
+    private void drawScore() {
+        gameScore = String.valueOf(game.score);
+        scoreDisplay.setText(gameScore);
+    }
+
 
     //REF: https://stackoverflow.com/questions/24345754/shaperenderer-produces-pixelated-shapes-using-libgdx
     //Enable anti alias
     private void drawCell(int left, int bottom, int right, int top, int value) {
-
         gameSkin.getDrawable("cell" + value).draw(batch, left, bottom, right - left, top - bottom);
 
     }
@@ -276,7 +268,8 @@ public class GameView extends ApplicationAdapter {
         int screenMidX = width / 2;
         int screenMidY = height / 2;
         int boardMidY = screenMidY + cellSize / 2;
-        iconSize = (int) ((5 * width / 9) / 5 * 1.5);
+        iconSize = (int) (cellSize);
+        iconPaddingSize = cellPadding;
 
         double halfNumSquaresX = game.numCellX / 2d;
         double halfNumSquaresY = game.numCellY / 2d;
@@ -286,10 +279,45 @@ public class GameView extends ApplicationAdapter {
         gridRect.y = (int) (boardMidY - (cellSize + cellPadding) * halfNumSquaresY - cellPadding / 2);
         gridRect.height = (int) (boardMidY + (cellSize + cellPadding) * halfNumSquaresY + cellPadding / 2 - gridRect.y);
 
+
+        backButton.setPosition(screenMidX - iconSize * 3 / 2 - iconPaddingSize, height - iconPaddingSize, Align.left);
+        backButton.setSize(iconSize, iconSize);
+
+        homeButton.setPosition(screenMidX - iconSize / 2, height - iconPaddingSize, Align.left);
+        homeButton.setSize(iconSize, iconSize);
+
+        restartButton.setPosition(screenMidX + iconSize / 2 + iconPaddingSize, height - iconPaddingSize, Align.left);
+        restartButton.setSize(iconSize, iconSize);
+
+
+        fontParameter.size = Gdx.graphics.getWidth() / 5;
+        fontParameter.color = Color.DARK_GRAY;
+        scoreFont = fontGenerator.generateFont(fontParameter);
+        scoreDisplay.setPosition(screenMidX, gridRect.y / 2, Align.center);
     }
 
     public void resyncTime() {
         lastFPSTime = System.currentTimeMillis();
+    }
+
+    private void createButton() {
+        homeButton = new Button(gameSkin.getDrawable("ic_home"));
+        restartButton = new Button(gameSkin.getDrawable("ic_restart"));
+        backButton = new Button(gameSkin.getDrawable("ic_back"));
+        backButton.addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                super.clicked(event, x, y);
+                game.revertUndoState();
+            }
+        });
+
+        fontParameter.size = Gdx.graphics.getWidth() / 5;
+        fontParameter.color = Color.DARK_GRAY;
+        scoreFont = fontGenerator.generateFont(fontParameter);
+        TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
+        textButtonStyle.font = scoreFont;
+        scoreDisplay = new TextButton("0", textButtonStyle);
     }
 
     private void handleInput(){

@@ -15,10 +15,9 @@ public class MainGame {
     private static final long NOTIFICATION_ANIMATION_TIME = GameView.BASE_ANIMATION_TIME * 5;
     private static final String HIGH_SCORE = "high score";
     //Maximum number of mive to make winning state
-    private static final int MAX_MOVE = 100;
     public static long timer = 0;
-    public int numCellX = 5;
-    public int numCellY = 5;
+    public int numCellX = 4;
+    public int numCellY = 4;
     private final GameView mView;
     public GameState gameState = GameState.NORMAL;
     public GameState lastGameState = GameState.NORMAL;

@@ -1,0 +1,145 @@
+
+default.png
+size: 2048,2048
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+cell10
+  rotate: false
+  xy: 535, 733
+  size: 531, 531
+  orig: 531, 531
+  offset: 0, 0
+  index: -1
+cell11
+  rotate: false
+  xy: 535, 200
+  size: 531, 531
+  orig: 531, 531
+  offset: 0, 0
+  index: -1
+cell12
+  rotate: false
+  xy: 2, 1266
+  size: 531, 531
+  orig: 531, 531
+  offset: 0, 0
+  index: -1
+cell13
+  rotate: false
+  xy: 1068, 733
+  size: 531, 531
+  orig: 531, 531
+  offset: 0, 0
+  index: -1
+cell14
+  rotate: false
+  xy: 2, 733
+  size: 531, 531
+  orig: 531, 531
+  offset: 0, 0
+  index: -1
+cell6
+  rotate: false
+  xy: 1068, 199
+  size: 530, 532
+  orig: 530, 532
+  offset: 0, 0
+  index: -1
+cell7
+  rotate: false
+  xy: 2, 200
+  size: 531, 531
+  orig: 531, 531
+  offset: 0, 0
+  index: -1
+cell8
+  rotate: false
+  xy: 535, 1266
+  size: 531, 531
+  orig: 531, 531
+  offset: 0, 0
+  index: -1
+cell9
+  rotate: false
+  xy: 1068, 1266
+  size: 531, 531
+  orig: 531, 531
+  offset: 0, 0
+  index: -1
+ic_back
+  rotate: false
+  xy: 2, 2
+  size: 64, 64
+  orig: 64, 64
+  offset: 0, 0
+  index: -1
+ic_home
+  rotate: false
+  xy: 2, 68
+  size: 64, 64
+  orig: 64, 64
+  offset: 0, 0
+  index: -1
+ic_restart
+  rotate: false
+  xy: 2, 134
+  size: 64, 64
+  orig: 64, 64
+  offset: 0, 0
+  index: -1
+
+default2.png
+size: 2048,2048
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+cell1
+  rotate: false
+  xy: 2, 1068
+  size: 530, 531
+  orig: 530, 531
+  offset: 0, 0
+  index: -1
+cell15
+  rotate: false
+  xy: 534, 2
+  size: 528, 531
+  orig: 528, 531
+  offset: 0, 0
+  index: -1
+cell16
+  rotate: false
+  xy: 1066, 1068
+  size: 529, 531
+  orig: 529, 531
+  offset: 0, 0
+  index: -1
+cell2
+  rotate: false
+  xy: 2, 535
+  size: 530, 531
+  orig: 530, 531
+  offset: 0, 0
+  index: -1
+cell3
+  rotate: false
+  xy: 534, 1068
+  size: 530, 531
+  orig: 530, 531
+  offset: 0, 0
+  index: -1
+cell4
+  rotate: false
+  xy: 2, 2
+  size: 530, 531
+  orig: 530, 531
+  offset: 0, 0
+  index: -1
+cell5
+  rotate: false
+  xy: 534, 535
+  size: 530, 531
+  orig: 530, 531
+  offset: 0, 0
+  index: -1
