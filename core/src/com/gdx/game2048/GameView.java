@@ -41,6 +41,8 @@ public class GameView extends ApplicationAdapter {
     private float cellTextSize;
     private int cellPadding;
     private CellsColor cellsColor = new CellsColor();
+    private float alphaMultiplier = 0.5f;
+    int sampleRate = 3;
 
     //Button
     public boolean restartButtonEnabled = false;
@@ -162,19 +164,31 @@ public class GameView extends ApplicationAdapter {
         //For now render cells only
     }
 
+
+    //REF: https://stackoverflow.com/questions/24345754/shaperenderer-produces-pixelated-shapes-using-libgdx
+    //Enable anti alias
     private void drawCell(int left, int bottom, int right, int top, int value) {
-        shapeRender.setColor(cellsColor.getColor(value));
-        shapeRender.circle((left + right) / 2, (bottom + top) / 2, (right - left) / 2) ;
+        float a = 1;
+        int radius = (right - left) / 2;
+        int radiusStep = radius / 200;
+        int x = (left + right) / 2;
+        int y = (bottom + top) / 2;
+        Color color = cellsColor.getColor(value);
+        shapeRender.setColor(color);
+        shapeRender.circle(x, y, radius) ;
+        for(int i=0; i<sampleRate; i++) {
+            a *= alphaMultiplier;
+            radius += radiusStep;
+            color.a = a;
+            shapeRender.setColor(color);
+            shapeRender.circle(x, y, radius);
+        }
         //shapeRender.roundedRect(left, bottom, right - left, top - bottom, (right - left) / 5);
         cellsText.add(new Pair<Rectangle, Integer>(new Rectangle((int)(left + font.getLineHeight() / 2), (int) (top -  font.getLineHeight() / 2)  , 0, 0), value));
     }
 
     private void drawCell(float left, float bottom, float right, float top, int value) {
-        shapeRender.setColor(cellsColor.getColor(value));
-        shapeRender.circle((left + right) / 2, (bottom + top) / 2, (right - left) / 2) ;
-        //shapeRender.roundedRect(left, bottom, right - left, top - bottom    , (right - left) / 5);
-        cellsText.add(new Pair<Rectangle, Integer>(new Rectangle((int)(left + font.getLineHeight() / 2), (int)(top - font.getLineHeight() / 2), 0 ,0), value));
-
+        drawCell((int)left, (int)bottom, (int)right, (int)top, value );
     }
 
     private void drawCells() {
