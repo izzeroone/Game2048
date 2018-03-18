@@ -26,7 +26,7 @@ public class CellsColor {
         return cellsColor.get(cellValue);
     }
 
-    private Color colorFromInt(int r, int g, int b, float a) {
+    public static Color colorFromInt(int r, int g, int b, float a) {
         return new Color(r / 255f, g / 255f, b / 255f, a);
     }
 }

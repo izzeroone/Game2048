@@ -4,16 +4,17 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.audio.Music;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.gdx.game2048.CellColor.CellsColor;
-import com.gdx.game2048.Shape.CustomShapeRender;
-import javafx.util.Pair;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -35,16 +36,14 @@ public class GameView extends ApplicationAdapter {
     public final int numCellTypes = 21;
     public Rectangle gridRect = new Rectangle();
     //Queue to draw cell text
-    private ArrayList<Pair<Rectangle, Integer>> cellsText = new ArrayList<Pair<Rectangle, Integer>>();
-    private CustomShapeRender shapeRender; // draw cell
     private int cellSize;
-    private float cellTextSize;
     private int cellPadding;
-    private CellsColor cellsColor = new CellsColor();
-    private float alphaMultiplier = 0.5f;
-    int sampleRate = 3;
 
     //Button
+    public Skin gameSkin;
+    public Stage stage;
+    public TextureAtlas gameAtlas;
+    public Button homeButton;
     public boolean restartButtonEnabled = false;
     public int iconSize;
     public int iconPaddingSize;
@@ -56,26 +55,15 @@ public class GameView extends ApplicationAdapter {
 
     //Text
     public int textPaddingSize;
-    public float instructionTextSize;
-    public float subInstructionTextSize;
+    public int instructionTextSize;
+    public int subInstructionTextSize;
     public int sYInstruction;
     public int sYSubInstruction;
     public int eYAll;
     public int sYScore;
-    public BitmapFont font;
     public FreeTypeFontGenerator fontGenerator;
     public FreeTypeFontGenerator.FreeTypeFontParameter fontParameter;
 
-
-    //TODO: Hash map font bitmap font render
-
-    //Texture
-    private Texture icActionRefresh;
-    private Texture icActionUndo;
-    private Texture icActioHome;
-    private Texture backgroundRectangle;
-    private Texture lightUpRectangle;
-    private Texture background;
 
     //Timing for draw
     private long lastFPSTime = System.currentTimeMillis();
@@ -99,19 +87,41 @@ public class GameView extends ApplicationAdapter {
         game.gameStart();
 
         //Loading asset
-        try {
-            mainTheme = Gdx.audio.newMusic(Gdx.files.internal("music/maintheme.mp3"));
-            shapeRender = new CustomShapeRender();
-            fontGenerator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/ClearSans-Bold.ttf"));
-            fontParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-            fontParameter.size = 28;
-            font = new BitmapFont(Gdx.files.internal("bitmapfont/Amble-Regular-26.fnt"));
-            font = fontGenerator.generateFont(fontParameter);
-            font.setColor(Color.WHITE);
+        mainTheme = Gdx.audio.newMusic(Gdx.files.internal("music/maintheme.mp3"));;
+        fontGenerator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/ClearSans-Bold.ttf"));
+        fontParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        gameAtlas = new TextureAtlas("themes/default.atlas");
+        gameSkin = new Skin(gameAtlas);
+        ImageButton.ImageButtonStyle homeButtonStyle = new ImageButton.ImageButtonStyle();
+        homeButtonStyle.up = gameSkin.getDrawable("ic_home");
+        homeButton = new ImageButton(homeButtonStyle);
 
-        } catch (Exception e) {
+        //Setup stage
+        stage = new Stage(new ScreenViewport());
+        stage.addActor(homeButton);
+        homeButton.addListener(new InputListener() {
+            public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
+                Gdx.app.log("my app", "Pressed"); //** Usually used to start Game, etc. **//
 
-        }
+
+                // TODO Auto-generated method stub
+
+
+
+                return true;
+
+            }
+
+            public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
+                Gdx.app.log("my app", "Rggggggeleased");
+
+                ///and level
+
+                dispose();
+
+            }
+        });
+        Gdx.input.setInputProcessor(stage);
 
         //Playing music
     }
@@ -134,20 +144,14 @@ public class GameView extends ApplicationAdapter {
 
         batch.begin();
         //Draw cell shape
-        shapeRender.begin(ShapeRenderer.ShapeType.Filled);
-        shapeRender.setColor(0, 1, 0, 1);
         drawCells();
-        shapeRender.end();
         batch.end();
 
         batch.begin();
-        Rectangle rect;
-        for (Pair<Rectangle, Integer> pair : cellsText) {
-            rect = pair.getKey();
-            font.draw(batch, pair.getValue().toString(), rect.x, rect.y);
-        }
-        cellsText.clear();
         batch.end();
+
+        stage.act();
+        stage.draw();
 
         //Refresh the screen if there is still an animation running
         if (game.animationGrid.isAnimationActive()) {
@@ -168,23 +172,9 @@ public class GameView extends ApplicationAdapter {
     //REF: https://stackoverflow.com/questions/24345754/shaperenderer-produces-pixelated-shapes-using-libgdx
     //Enable anti alias
     private void drawCell(int left, int bottom, int right, int top, int value) {
-        float a = 1;
-        int radius = (right - left) / 2;
-        int radiusStep = radius / 200;
-        int x = (left + right) / 2;
-        int y = (bottom + top) / 2;
-        Color color = cellsColor.getColor(value);
-        shapeRender.setColor(color);
-        shapeRender.circle(x, y, radius) ;
-        for(int i=0; i<sampleRate; i++) {
-            a *= alphaMultiplier;
-            radius += radiusStep;
-            color.a = a;
-            shapeRender.setColor(color);
-            shapeRender.circle(x, y, radius);
-        }
-        //shapeRender.roundedRect(left, bottom, right - left, top - bottom, (right - left) / 5);
-        cellsText.add(new Pair<Rectangle, Integer>(new Rectangle((int)(left + font.getLineHeight() / 2), (int) (top -  font.getLineHeight() / 2)  , 0, 0), value));
+
+        gameSkin.getDrawable("cell" + value).draw(batch, left, bottom, right - left, top - bottom);
+
     }
 
     private void drawCell(float left, float bottom, float right, float top, int value) {
@@ -296,7 +286,6 @@ public class GameView extends ApplicationAdapter {
         gridRect.y = (int) (boardMidY - (cellSize + cellPadding) * halfNumSquaresY - cellPadding / 2);
         gridRect.height = (int) (boardMidY + (cellSize + cellPadding) * halfNumSquaresY + cellPadding / 2 - gridRect.y);
 
-        cellTextSize = cellSize * 1.3f;
     }
 
     public void resyncTime() {
