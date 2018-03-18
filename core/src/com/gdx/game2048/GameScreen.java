@@ -16,6 +16,7 @@ import com.gdx.game2048.Shape.CustomShapeRender;
 
 public class GameScreen extends ApplicationAdapter {
 	SpriteBatch batch;
+	SpriteBatch shapeBatch;
 	Texture img;
 	CustomShapeRender shapeRenderer;
 	Stage stage;
@@ -24,6 +25,7 @@ public class GameScreen extends ApplicationAdapter {
 	@Override
 	public void create () {
 		batch = new SpriteBatch();
+		shapeBatch = new SpriteBatch();
 		img = new Texture("circle1.png");
 		shapeRenderer = new CustomShapeRender();
 
@@ -51,8 +53,19 @@ public class GameScreen extends ApplicationAdapter {
 		stage.act();
 		stage.draw();
 		batch.begin();
-		drawImage();
+		shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+		shapeRenderer.setColor(Color.RED);
+		shapeRenderer.circle(50, 50, 25);
+		shapeRenderer.end();
 		batch.end();
+
+		batch.begin();
+		drawImage();
+		myFont.setColor(Color.RED);
+		myFont.draw(batch, "Hello World", 50, 50);
+		batch.end();
+
+
 	}
 
 	@Override

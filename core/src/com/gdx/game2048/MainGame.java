@@ -9,10 +9,10 @@ import java.util.List;
 
 public class MainGame {
     //timer and its update
-    private static final long MOVE_ANIMATION_TIME = GameView.BASE_ANIMATION_TINE;
-    private static final long SPAWN_ANIMATION_TIME = GameView.BASE_ANIMATION_TINE;
+    private static final long MOVE_ANIMATION_TIME = GameView.BASE_ANIMATION_TIME;
+    private static final long SPAWN_ANIMATION_TIME = GameView.BASE_ANIMATION_TIME;
     private static final long NOTIFICATION_DELAY_TIME = MOVE_ANIMATION_TIME + SPAWN_ANIMATION_TIME;
-    private static final long NOTIFICATION_ANIMATION_TIME = GameView.BASE_ANIMATION_TINE * 5;
+    private static final long NOTIFICATION_ANIMATION_TIME = GameView.BASE_ANIMATION_TIME * 5;
     private static final String HIGH_SCORE = "high score";
     //Maximum number of mive to make winning state
     private static final int MAX_MOVE = 100;
