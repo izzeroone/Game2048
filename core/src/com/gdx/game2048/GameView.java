@@ -18,6 +18,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
@@ -45,13 +46,18 @@ public class GameView extends ApplicationAdapter {
     private int cellSize;
     private int cellPadding;
 
+    //Step 1: create Skin, TextureAtlas, Button
+
     //Button
     public Skin gameSkin;
+    public Skin startButtonSkin;
     public Stage stage;
     public TextureAtlas gameAtlas;
+    public TextureAtlas startButtonAtlas;
     public Button homeButton;
     public Button restartButton;
     public Button backButton;
+    public Button startButton;
     public boolean restartButtonEnabled = false;
     public int iconSize;
     public int iconPaddingSize;
@@ -100,13 +106,22 @@ public class GameView extends ApplicationAdapter {
         gameAtlas = new TextureAtlas("themes/default.atlas");
         gameSkin = new Skin(gameAtlas);
 
-        //setup button
+        //Step 2: TextureAtlas with atlas path
+        startButtonAtlas = new TextureAtlas("themes/button.atlas");
+        //Step 3: create skin
+        startButtonSkin = new Skin(startButtonAtlas);
+
+        //add view to object manager
         createButton();
         stage = new Stage(new ScreenViewport());
         stage.addActor(restartButton);
         stage.addActor(backButton);
         stage.addActor(homeButton);
+
         stage.addActor(scoreDisplay);
+
+        //Step 6: add to stage
+        stage.addActor(startButton);
 
 
         Gdx.input.setInputProcessor(stage);
@@ -311,6 +326,18 @@ public class GameView extends ApplicationAdapter {
                 game.revertUndoState();
             }
         });
+
+        //Step 4: create button
+        startButton = new Button(startButtonSkin.getDrawable("startButton"), startButtonSkin.getDrawable("Facebook_96px"));
+        //Step 5: add event
+        startButton.addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                super.clicked(event, x, y);
+                //todo: handle start
+            }
+        });
+
 
         fontParameter.size = Gdx.graphics.getWidth() / 5;
         fontParameter.color = Color.DARK_GRAY;

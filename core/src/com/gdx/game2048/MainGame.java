@@ -18,7 +18,8 @@ public class MainGame {
     public static long timer = 0;
     public int numCellX = 4;
     public int numCellY = 4;
-    private final GameView mView;
+    private final GameView mGameView;
+
     public GameState gameState = GameState.NORMAL;
     public GameState lastGameState = GameState.NORMAL;
     public GameState bufferGameState = GameState.NORMAL;
@@ -33,7 +34,7 @@ public class MainGame {
     public static int maxTime = 60000;
 
     public MainGame(GameView view){
-        mView = view;
+        mGameView = view;
         //avoid game over on the beginning
         startTime = System.currentTimeMillis();
         timer = 0;
@@ -72,8 +73,8 @@ public class MainGame {
         animationGrid.cancelAnimations();
         spawnGridAnimation();
         percent = 0;
-        mView.refreshLastTime = true;
-        mView.resyncTime();
+        mGameView.refreshLastTime = true;
+        mGameView.resyncTime();
     }
 
     public void gameStart(){
@@ -97,8 +98,8 @@ public class MainGame {
             //get the hint
             //play sound
             //refresh view
-            mView.refreshLastTime = true;
-            mView.resyncTime();
+            mGameView.refreshLastTime = true;
+            mGameView.resyncTime();
 
         } else{
             //the game already start, make same notification
@@ -234,7 +235,7 @@ public class MainGame {
             grid.revertTiles();
             score = lastScore;
             gameState = lastGameState;
-            mView.refreshLastTime = true;
+            mGameView.refreshLastTime = true;
         }
     }
 
@@ -278,14 +279,14 @@ public class MainGame {
             checkLose();
         }
 
-        mView.resyncTime();
-//        mView.invalidate();
+        mGameView.resyncTime();
+//        mGameView.invalidate();
 
     }
 
     //move spectific cell
     public void move(int xx, int yy, int direction){
-//        mView.nextHint();
+//        mGameView.nextHint();
 //        SoundPoolManager.getInstance().playSound(R.raw.step);
         animationGrid.cancelAnimations();
         // 0: up, 1: right, 2: down, 3: left
@@ -303,8 +304,8 @@ public class MainGame {
             checkWin();
             checkLose();
         }
-        mView.resyncTime();
-//        mView.invalidate();
+        mGameView.resyncTime();
+//        mGameView.invalidate();
     }
 
     private boolean moveAndCheck(int xx, int yy, int direction){
