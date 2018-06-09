@@ -347,13 +347,13 @@ public class Grid {
 // Note that the pieces can be distant
     public int smoothness(){
         int smootness = 0;
-        for (int x = 0; x < this.field.length; x++) {
-            for (int y = 0; y < this.field[0].length; y++) {
-                if (this.isCellOccupied(new Cell(x, y))) {
-                    int value = this.getCellContent(x, y).getValue();
+        for (int xx = 0; xx < this.field.length; xx++) {
+            for (int yy = 0; yy < this.field[0].length; yy++) {
+                if (this.isCellOccupied(new Cell(xx, yy))) {
+                    int value = this.getCellContent(xx, yy).getValue();
                     for (int directtion = 1; directtion <= 2; directtion++) {
                         Cell vector = this.getMovingVector(directtion);
-                        Cell targetCell = this.findFarthestPosition(new Cell(x, y), vector)[1];
+                        Cell targetCell = this.findFarthestPosition(new Cell(xx, yy), vector)[1];
 
                         if (this.isCellOccupied(targetCell)) {
                             Tile target = this.getCellContent(targetCell);
