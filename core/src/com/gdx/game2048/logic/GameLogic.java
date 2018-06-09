@@ -9,7 +9,7 @@ import com.gdx.game2048.model.animation.AnimationType;
 import com.gdx.game2048.model.data.Cell;
 import com.gdx.game2048.model.data.GameState;
 import com.gdx.game2048.model.data.Grid;
-import com.gdx.game2048.screen.GameView;
+import com.gdx.game2048.screen.GameScreen;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -17,16 +17,16 @@ import java.util.List;
 
 public class GameLogic {
     //timer and its update
-    private static final long MOVE_ANIMATION_TIME = GameView.BASE_ANIMATION_TIME;
-    private static final long SPAWN_ANIMATION_TIME = GameView.BASE_ANIMATION_TIME;
+    private static final long MOVE_ANIMATION_TIME = GameScreen.BASE_ANIMATION_TIME;
+    private static final long SPAWN_ANIMATION_TIME = GameScreen.BASE_ANIMATION_TIME;
     private static final long NOTIFICATION_DELAY_TIME = MOVE_ANIMATION_TIME + SPAWN_ANIMATION_TIME;
-    private static final long NOTIFICATION_ANIMATION_TIME = GameView.BASE_ANIMATION_TIME * 5;
+    private static final long NOTIFICATION_ANIMATION_TIME = GameScreen.BASE_ANIMATION_TIME * 5;
     private static final String HIGH_SCORE = "high score";
     //Maximum number of mive to make winning state
     public static long timer = 0;
     public int numCellX = 4;
     public int numCellY = 4;
-    private final GameView mGameView;
+    private GameScreen mGameScreen;
 
     public GameState gameState = GameState.NORMAL;
     public GameState lastGameState = GameState.NORMAL;
@@ -41,11 +41,20 @@ public class GameLogic {
     private long startTime = 0;
     public static int maxTime = 60000;
 
-    public GameLogic(GameView view){
-        mGameView = view;
+    public GameLogic() {
+    }
+
+    public GameLogic(GameScreen screen){
+        mGameScreen = screen;
         //avoid game over on the beginning
         startTime = System.currentTimeMillis();
         timer = 0;
+    }
+
+    public GameLogic(int numCellX, int numCellY, GameScreen mGameScreen) {
+        this.numCellX = numCellX;
+        this.numCellY = numCellY;
+        this.mGameScreen = mGameScreen;
     }
 
     public void setSize(int numCellXX, int numCellYY, int time){
@@ -81,8 +90,8 @@ public class GameLogic {
         animationGrid.cancelAnimations();
         spawnGridAnimation();
         percent = 0;
-        mGameView.refreshLastTime = true;
-        mGameView.resyncTime();
+        mGameScreen.refreshLastTime = true;
+        mGameScreen.resyncTime();
     }
 
     public void gameStart(){
@@ -106,8 +115,8 @@ public class GameLogic {
             //get the hint
             //play sound
             //refresh view
-            mGameView.refreshLastTime = true;
-            mGameView.resyncTime();
+            mGameScreen.refreshLastTime = true;
+            mGameScreen.resyncTime();
 
         } else{
             //the game already start, make same notification
@@ -223,7 +232,7 @@ public class GameLogic {
             grid.revertTiles();
             score = lastScore;
             gameState = lastGameState;
-            mGameView.refreshLastTime = true;
+            mGameScreen.refreshLastTime = true;
         }
     }
 
@@ -269,7 +278,7 @@ public class GameLogic {
             checkLose();
         }
 
-        mGameView.resyncTime();
+        mGameScreen.resyncTime();
 //        mGameView.invalidate();
 
     }
@@ -294,7 +303,7 @@ public class GameLogic {
             checkWin();
             checkLose();
         }
-        mGameView.resyncTime();
+        mGameScreen.resyncTime();
 //        mGameView.invalidate();
     }
 

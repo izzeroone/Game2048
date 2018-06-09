@@ -1,11 +1,9 @@
 package com.gdx.game2048.screen;
 
-import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
@@ -20,19 +18,18 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.gdx.game2048.logic.GameLogic;
-import com.gdx.game2048.model.data.Tile;
 import com.gdx.game2048.model.animation.AnimationCell;
 import com.gdx.game2048.model.animation.AnimationType;
+import com.gdx.game2048.model.data.Tile;
 
 import java.util.ArrayList;
 
-
-public class GameView extends ApplicationAdapter {
+public class GameScreen extends AbstractScreen {
     //Game logic
     GameLogic game;
 
     //Tag for debug
-    private static final String TAG = GameView.class.getSimpleName();
+    private static final String TAG = GameScreen.class.getSimpleName();
 
     //Animation constant
     public static final int BASE_ANIMATION_TIME = 100;
@@ -50,7 +47,6 @@ public class GameView extends ApplicationAdapter {
 
     //Button
     public Skin gameSkin;
-    public Stage stage;
     public TextureAtlas gameAtlas;
     public Button homeButton;
     public Button restartButton;
@@ -79,14 +75,19 @@ public class GameView extends ApplicationAdapter {
     //Batch for drawing;
     private SpriteBatch batch;
 
+    public GameScreen() {
+        game = new GameLogic(this);
+    }
+
+    public GameScreen(int numCellX, int numCellY) {
+        this.game = new GameLogic(numCellX, numCellY, this);
+    }
+
     @Override
-    public void create() {
-        super.create();
-        //Create new batch
+    public void buildStage() {
         batch = new SpriteBatch();
 
         //Start game
-        game = new GameLogic(this);
         game.newGame();
         game.gameStart();
 
@@ -100,50 +101,28 @@ public class GameView extends ApplicationAdapter {
 
         //add view to object manager
         createButton();
-        stage = new Stage(new ScreenViewport());
-        stage.addActor(restartButton);
-        stage.addActor(backButton);
-        stage.addActor(homeButton);
+        this.addActor(restartButton);
+        this.addActor(backButton);
+        this.addActor(homeButton);
 
-        stage.addActor(scoreDisplay);
-
-        //Step 6: add to stage
-        stage.addActor(startButton);
+        this.addActor(scoreDisplay);
 
 
-        Gdx.input.setInputProcessor(stage);
+        Gdx.input.setInputProcessor(this);
 
         //Playing music
         mainTheme.play();
     }
 
-
     @Override
-    public void resize(int width, int height) {
-        super.resize(width, height);
-        makeLayout(width, height);
-        //Calc pos and size
-    }
-
-    @Override
-    public void render() {
-        super.render();
-
+    public void render(float delta) {
+        super.render(delta);
         handleInput();
-        //Reset the transparency of the screen
-        Gdx.gl.glClearColor(1, 1, 1, 1);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
         batch.begin();
         //Draw cell shape
         drawScore();
         drawCells();
         batch.end();
-
-
-        stage.act();
-        stage.draw();
-
         //Refresh the screen if there is still an animation running
         if (game.animationGrid.isAnimationActive()) {
             update();
@@ -158,6 +137,13 @@ public class GameView extends ApplicationAdapter {
 
         //For now render cells only
     }
+
+    @Override
+    public void resize(int width, int height) {
+        super.resize(width, height);
+        this.makeLayout(width, height);
+    }
+
 
     private void drawScore() {
         gameScore = String.valueOf(game.score);
@@ -346,7 +332,4 @@ public class GameView extends ApplicationAdapter {
             game.move(1);
         }
     }
-
-
-
 }
