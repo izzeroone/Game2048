@@ -1,4 +1,4 @@
-package com.gdx.game2048;
+package com.gdx.game2048.model.animation;
 
 
 

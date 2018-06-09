@@ -1,4 +1,4 @@
-package com.gdx.game2048;
+package com.gdx.game2048.model.animation;
 
 import java.util.ArrayList;
 
@@ -34,28 +34,26 @@ public class AnimationGrid {
 
     public void updateAll(long deltatime) {
         ArrayList<AnimationCell> cancelledAnimations = new ArrayList<AnimationCell>();
+        update(deltatime, cancelledAnimations, globalAnimation);
+
+        for (ArrayList<AnimationCell>[] array : field) {
+            for (ArrayList<AnimationCell> list : array) {
+                update(deltatime, cancelledAnimations, list);
+            }
+        }
+
+        for (AnimationCell animation : cancelledAnimations) {
+            cancelAnimation(animation);
+        }
+    }
+
+    private void update(long deltatime, ArrayList<AnimationCell> cancelledAnimations, ArrayList<AnimationCell> globalAnimation) {
         for (AnimationCell animation : globalAnimation) {
             animation.update(deltatime);
             if (animation.animationDone()) {
                 cancelledAnimations.add(animation);
                 activeAnimations = activeAnimations - 1;
             }
-        }
-
-        for (ArrayList<AnimationCell>[] array : field) {
-            for (ArrayList<AnimationCell> list : array) {
-                for (AnimationCell animation : list) {
-                    animation.update(deltatime);
-                    if (animation.animationDone()) {
-                        cancelledAnimations.add(animation);
-                        activeAnimations = activeAnimations - 1;
-                    }
-                }
-            }
-        }
-
-        for (AnimationCell animation : cancelledAnimations) {
-            cancelAnimation(animation);
         }
     }
 

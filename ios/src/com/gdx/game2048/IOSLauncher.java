@@ -1,5 +1,6 @@
 package com.gdx.game2048;
 
+import com.gdx.game2048.screen.GameView;
 import org.robovm.apple.foundation.NSAutoreleasePool;
 import org.robovm.apple.uikit.UIApplication;
 
@@ -10,7 +11,7 @@ public class IOSLauncher extends IOSApplication.Delegate {
     @Override
     protected IOSApplication createApplication() {
         IOSApplicationConfiguration config = new IOSApplicationConfiguration();
-        return new IOSApplication(new GameScreen(), config);
+        return new IOSApplication(new GameView(), config);
     }
 
     public static void main(String[] argv) {

@@ -3,7 +3,7 @@ package com.gdx.game2048.client;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.backends.gwt.GwtApplication;
 import com.badlogic.gdx.backends.gwt.GwtApplicationConfiguration;
-import com.gdx.game2048.GameView;
+import com.gdx.game2048.screen.GameView;
 
 public class HtmlLauncher extends GwtApplication {
 

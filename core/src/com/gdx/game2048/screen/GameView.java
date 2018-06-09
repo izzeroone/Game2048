@@ -1,4 +1,4 @@
-package com.gdx.game2048;
+package com.gdx.game2048.screen;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
@@ -10,26 +10,26 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
-import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.gdx.game2048.logic.GameLogic;
+import com.gdx.game2048.model.data.Tile;
+import com.gdx.game2048.model.animation.AnimationCell;
+import com.gdx.game2048.model.animation.AnimationType;
 
-import java.awt.*;
 import java.util.ArrayList;
 
 
 public class GameView extends ApplicationAdapter {
     //Game logic
-    MainGame game;
+    GameLogic game;
 
     //Tag for debug
     private static final String TAG = GameView.class.getSimpleName();
@@ -50,10 +50,8 @@ public class GameView extends ApplicationAdapter {
 
     //Button
     public Skin gameSkin;
-    public Skin startButtonSkin;
     public Stage stage;
     public TextureAtlas gameAtlas;
-    public TextureAtlas startButtonAtlas;
     public Button homeButton;
     public Button restartButton;
     public Button backButton;
@@ -61,13 +59,6 @@ public class GameView extends ApplicationAdapter {
     public boolean restartButtonEnabled = false;
     public int iconSize;
     public int iconPaddingSize;
-
-    //Text
-    public int textPaddingSize;
-    public int instructionTextSize;
-    public int subInstructionTextSize;
-    public int sYInstruction;
-    public int sYSubInstruction;
 
     //Score
     public Rectangle scoreRect = new Rectangle();
@@ -95,21 +86,17 @@ public class GameView extends ApplicationAdapter {
         batch = new SpriteBatch();
 
         //Start game
-        game = new MainGame(this);
+        game = new GameLogic(this);
         game.newGame();
         game.gameStart();
 
         //Loading asset
-        mainTheme = Gdx.audio.newMusic(Gdx.files.internal("music/maintheme.mp3"));;
+        mainTheme = Gdx.audio.newMusic(Gdx.files.internal("music/maintheme.mp3"));
         fontGenerator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/ClearSans-Bold.ttf"));
         fontParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         gameAtlas = new TextureAtlas("themes/default.atlas");
         gameSkin = new Skin(gameAtlas);
 
-        //Step 2: TextureAtlas with atlas path
-        startButtonAtlas = new TextureAtlas("themes/button.atlas");
-        //Step 3: create skin
-        startButtonSkin = new Skin(startButtonAtlas);
 
         //add view to object manager
         createButton();
@@ -127,6 +114,7 @@ public class GameView extends ApplicationAdapter {
         Gdx.input.setInputProcessor(stage);
 
         //Playing music
+        mainTheme.play();
     }
 
 
@@ -283,7 +271,7 @@ public class GameView extends ApplicationAdapter {
         int screenMidX = width / 2;
         int screenMidY = height / 2;
         int boardMidY = screenMidY + cellSize / 2;
-        iconSize = (int) (cellSize);
+        iconSize = cellSize;
         iconPaddingSize = cellPadding;
 
         double halfNumSquaresX = game.numCellX / 2d;
@@ -326,18 +314,6 @@ public class GameView extends ApplicationAdapter {
                 game.revertUndoState();
             }
         });
-
-        //Step 4: create button
-        startButton = new Button(startButtonSkin.getDrawable("startButton"), startButtonSkin.getDrawable("Facebook_96px"));
-        //Step 5: add event
-        startButton.addListener(new ClickListener(){
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                super.clicked(event, x, y);
-                //todo: handle start
-            }
-        });
-
 
         fontParameter.size = Gdx.graphics.getWidth() / 5;
         fontParameter.color = Color.DARK_GRAY;

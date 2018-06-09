@@ -1,4 +1,4 @@
-package com.gdx.game2048;
+package com.gdx.game2048.model.data;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -9,6 +9,8 @@ import java.util.List;
 public class Grid {
     //field save the current state
     public final Tile[][] field;
+    //
+    private final Boolean[][] marketField;
     //undoField state before
     public final Tile[][] undoField;
     //to save current stage then assign to undoField to avoid mess thing up
@@ -19,6 +21,7 @@ public class Grid {
         field = new Tile[sizeX][sizeY];
         undoField = new Tile[sizeX][sizeY];
         bufferField = new Tile[sizeX][sizeY];
+        marketField = new Boolean[sizeX][sizeY];
         score = 0;
         clearGrid();
         clearUndoGrid();
@@ -340,9 +343,156 @@ public class Grid {
         return newGrid;
     }
 
+    private void mark(int x, int y, int value) {
+        if (x >= 0 && x <= this.field.length && y >= 0 && y <= this.field[0].length &&
+                this.field[x][y].getValue() == value &&
+                !this.marketField[x][y] ) {
+            this.marketField[x][y] = true;
+            for (int i = 0; i < 4; i++) {
+                Cell vector = this.getMovingVector(i);
+                mark(x + vector.getX(), y + vector.getY(), value);
+            }
+        }
+    }
+
+    // counts the number of isolated groups.
+    public int islands() {
+        int islands = 0;
+
+        for (int x = 0; x < this.field.length; x++) {
+            for (int y = 0; y < this.field[0].length; y++) {
+                this.marketField[x][y] = false;
+            }
+        }
+
+        for (int x = 0; x < this.field.length; x++) {
+            for (int y = 0; y < this.field[0].length; y++) {
+                if (!this.marketField[x][y]) {
+                    islands++;
+                    mark(x, y, this.field[x][y].getValue());
+                }
+            }
+        }
+        return islands;
+    }
+
+    // measures how smooth the grid is (as if the values of the pieces
+// were interpreted as elevations). Sums of the pairwise difference
+// between neighboring tiles (in log space, so it represents the
+// number of merges that need to happen before they can merge).
+// Note that the pieces can be distant
+    public double smoothness(){
+        double smootness = 0;
+        for (int x = 0; x < this.field.length; x++) {
+            for (int y = 0; y < this.field[0].length; y++) {
+                if (this.isCellOccupied(new Cell(x, y))) {
+                    double value = (Math.log(this.getCellContent(x, y).getValue()) / Math.log(2));
+                    for (int directtion = 1; directtion <= 2; directtion++) {
+                        Cell vector = this.getMovingVector(directtion);
+                        Cell targetCell = this.findFarthestPosition(new Cell(x, y), vector)[1];
+
+                        if (this.isCellOccupied(targetCell)) {
+                            Tile target = this.getCellContent(targetCell);
+                            double targetValue = Math.log(target.getValue()) / Math.log(2);
+                            smootness -= Math.abs(value - targetValue);
+                        }
+                    }
+                }
+            }
+        }
+        return smootness;
+    }
 
 
+    public double monotonicity(){
+        int totals[] = new int[]{0};
+
+        //up . down directtion
+        for (int x = 0; x < this.field.length; x++) {
+            int current = 0;
+            int next = current + 1;
+            while (next < this.field.length) {
+                while (next < this.field.length && !this.isCellOccupied(new Cell(x, next))) {
+                    next ++;
+                }
+                if (next >= this.field.length) {
+                    next --;
+                }
+
+                double currentValue = this.isCellOccupied(new Cell(x, current)) ?
+                        Math.log(this.getCellContent(new Cell(x, current)).getValue()) / Math.log(2) : 0;
+
+                double nextValue = this.isCellOccupied(new Cell(x, next)) ?
+                        Math.log(this.getCellContent(new Cell(x, next)).getValue()) / Math.log(2) : 0;
+
+                if (currentValue > nextValue) {
+                    totals[0] += nextValue - currentValue;
+                } else if (nextValue > currentValue) {
+                    totals[1] += currentValue - nextValue;
+                }
+                current = next;
+                next++;
+            }
+        }
+
+//         left/right direction
+        for (int y=0; y<this.field[0].length; y++) {
+            int current = 0;
+            int next = current+1;
+            while ( next< this.field[0].length ) {
+                while ( next < this.field[0].length && !this.isCellOccupied(new Cell(next, y) )) {
+                    next++;
+                }
+
+                if (next >= this.field[0].length) { next--; }
+
+                double currentValue = this.isCellOccupied(new Cell(current, y)) ?
+                Math.log(this.getCellContent(current,y).getValue() ) / Math.log(2) : 0;
+
+                double nextValue = this.isCellOccupied(new Cell(next, y)) ?
+                        Math.log(this.getCellContent(next,y).getValue() ) / Math.log(2) : 0;
 
 
+                if (currentValue > nextValue) {
+                    totals[2] += nextValue - currentValue;
+                } else if (nextValue > currentValue) {
+                    totals[3] += currentValue - nextValue;
+                }
+                current = next;
+                next++;
+            }
+        }
+
+       return Math.max(totals[0], totals[1]) + Math.max(totals[2], totals[3]);
+    }
+
+    public double maxValue(){
+        double max = 0;
+        for (int x = 0; x < this.field.length; x++) {
+            for (int y = 0; y < this.field[0].length; y++) {
+                if (this.isCellOccupied(new Cell(x, y))) {
+                    double value = this.getCellContent(new Cell(x, y)).getValue();
+                    if (value > max) {
+                        max = value;
+                    }
+                }
+            }
+        }
+
+        return Math.log(max) / Math.log(2);
+    }
+
+    public boolean isWin() {
+        for (int x=0; x<this.field.length; x++) {
+            for (int y=0; y<this.field[0].length; y++) {
+                if (this.isCellOccupied(new Cell(x, y))) {
+                    if (this.getCellContent(x, y).getValue() == 2048) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
 
 }

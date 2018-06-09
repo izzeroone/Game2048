@@ -1,4 +1,6 @@
-package com.gdx.game2048;
+package com.gdx.game2048.model.animation;
+
+import com.gdx.game2048.model.data.Cell;
 
 /**
  * Created by Cyber on 12/3/2017.

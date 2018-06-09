@@ -1,4 +1,4 @@
-package com.gdx.game2048;
+package com.gdx.game2048.screen;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
@@ -22,17 +22,14 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import javafx.util.Pair;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.Map;
 
 
-public class MainMenuView extends ApplicationAdapter {
+public class MenuView extends ApplicationAdapter {
     //Game logic
 
     //Tag for debug
-    private static final String TAG = MainMenuView.class.getSimpleName();
+    private static final String TAG = MenuView.class.getSimpleName();
 
     //Animation constant
     public static final int BASE_ANIMATION_TIME = 100;
@@ -111,18 +108,18 @@ public class MainMenuView extends ApplicationAdapter {
         batch = new SpriteBatch();
 
         levelInfo = new LinkedHashMap<Integer, Pair<String, String>>();
-        levelInfo.put(3, new Pair<>("3x3", "3x3"));
-        levelInfo.put(4, new Pair<>("4x4", "4x4"));
-        levelInfo.put(5, new Pair<>("5x5", "5x5"));
-        levelInfo.put(6, new Pair<>("6x6", "6x6"));
+        levelInfo.put(3, new Pair<String, String>("3x3", "3x3"));
+        levelInfo.put(4, new Pair<String, String>("4x4", "4x4"));
+        levelInfo.put(5, new Pair<String, String>("5x5", "5x5"));
+        levelInfo.put(6, new Pair<String, String>("6x6", "6x6"));
 
-        aiInfo = new LinkedHashMap<>();
+        aiInfo = new LinkedHashMap<Integer, String>();
         aiInfo.put(1, "Dump AI");
         aiInfo.put(2, "Smart AI");
         aiInfo.put(3, "Crazy AI");
 
         //Loading asset
-        mainTheme = Gdx.audio.newMusic(Gdx.files.internal("music/maintheme.mp3"));;
+        mainTheme = Gdx.audio.newMusic(Gdx.files.internal("music/maintheme.mp3"));
         fontGenerator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/ClearSans-Bold.ttf"));
         fontParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         //Step 2: TextureAtlas with atlas path
@@ -183,7 +180,7 @@ public class MainMenuView extends ApplicationAdapter {
 
         int screenMidX = width / 2;
         int screenMidY = height / 2;
-        iconSize = (int) (50);
+        iconSize = 50;
         iconPaddingSize = 50;
         float imageSize = 200;
 
