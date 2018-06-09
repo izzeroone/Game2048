@@ -441,6 +441,15 @@ public class GameLogic {
         animationGrid.startAnimation(-1, -1, AnimationType.FADE_GLOBAL, NOTIFICATION_ANIMATION_TIME, NOTIFICATION_DELAY_TIME, null);
     }
 
+    public void autoPlay() {
+        GameAI gameAI = new GameAI(this.grid);
+        while (true) {
+            SearchResult best = gameAI.getBest();
+            this.move(best.getDirection());
+        }
+
+    }
+
 
 
 

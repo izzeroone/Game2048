@@ -7,7 +7,6 @@ class SearchResult{
     private double score;
     private int position;
     private int cutoffs;
-    private static final int MIN_SEARCH_TIME = 10000;
 
 
     public SearchResult() {
@@ -46,7 +45,7 @@ class SearchResult{
     }
 }
 public class GameAI {
-
+    private static final int MIN_SEARCH_TIME = 1000;
     private Grid field;
     public GameAI() {
 
@@ -101,15 +100,15 @@ public class GameAI {
                     return result;
                 }
                 else {
-                    return newAi.search(depth-1, bestScore, beta, positions, cutoffs);
+                    result = newAi.search(depth-1, bestScore, beta, positions, cutoffs);
+                    if (result.getScore() > 9900) { // win
+                        result.setScore(result.getScore() - 1); // to slightly penalize higher depth from win
+                    }
+
+                    positions = result.getPosition();
+                    cutoffs = result.getCutoffs();
                 }
 
-//                if (result.getScore() > 9900) { // win
-//                    result.setScore(result.getScore() - 1); // to slightly penalize higher depth from win
-//                }
-//
-//                positions = result.getPosition();
-//                cutoffs = result.getCutoffs();
             }
 
             if (result.getScore() > bestScore) {
@@ -132,24 +131,26 @@ public class GameAI {
         return result;
     }
 
-//    public SearchResult getBest(){
-//        return this.iteratorDeep();
-//    }
+    public SearchResult getBest(){
+        return this.iteratorDeep();
+    }
 
-//    public SearchResult iteratorDeep(){
-////        System.get
-////        var start = (new Date()).getTime();
-////        var depth = 0;
-////        var best;
-////        do {
-////            var newBest = this.search(depth, -10000, 10000, 0 ,0);
-////            if (newBest.move == -1) {
-////                break;
-////            } else {
-////                best = newBest;
-////            }
-////            depth++;
-////        } while ( (new Date()).getTime() - start < minSearchTime);
-////        return best
-//    }
+    public SearchResult iteratorDeep(){
+
+        long start = System.currentTimeMillis();
+        System.out.println(System.currentTimeMillis() - start);
+        int depth = 0;
+        SearchResult best = new SearchResult();
+        do {
+            SearchResult newBest = this.search(depth, -10000, 10000, 0 ,0);
+            if (newBest.getDirection() == -1) {
+                break;
+            } else {
+                best = newBest;
+            }
+            depth++;
+            System.out.println(System.currentTimeMillis() - start);
+        } while ( System.currentTimeMillis() - start < MIN_SEARCH_TIME);
+        return best;
+   }
 }

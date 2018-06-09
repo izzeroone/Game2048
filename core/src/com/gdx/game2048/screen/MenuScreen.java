@@ -296,7 +296,7 @@ public class MenuScreen extends AbstractScreen {
             public void clicked(InputEvent event, float x, float y) {
                 super.clicked(event, x, y);
                 // dùng biến curLevel để xét
-                ScreenManager.getInstance().showScreen(ScreenEnum.GAME, curLevel, curLevel);
+                ScreenManager.getInstance().showScreen(ScreenEnum.GAME, curLevel, curLevel, false);
             }
         });
 
@@ -304,6 +304,7 @@ public class MenuScreen extends AbstractScreen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 super.clicked(event, x, y);
+                ScreenManager.getInstance().showScreen(ScreenEnum.GAME, curLevel, curLevel, true);
                 // dùng biến curAI để xét
             }
         });

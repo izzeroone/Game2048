@@ -75,12 +75,28 @@ public class GameScreen extends AbstractScreen {
     //Batch for drawing;
     private SpriteBatch batch;
 
+    //Threading
+    Thread autoPlay;
+
     public GameScreen() {
         game = new GameLogic(this);
     }
 
     public GameScreen(int numCellX, int numCellY) {
         this.game = new GameLogic(numCellX, numCellY, this);
+    }
+
+    public GameScreen(int numCellX, int numCellY, boolean auto) {
+        this.game = new GameLogic(numCellX, numCellY, this);
+        final GameLogic thatGame = this.game;
+        if(auto){
+            autoPlay = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    thatGame.autoPlay();
+                }
+            });
+        }
     }
 
     @Override
@@ -90,6 +106,7 @@ public class GameScreen extends AbstractScreen {
         //Start game
         game.newGame();
         game.gameStart();
+        autoPlay.start();
 
         //Loading asset
         mainTheme = Gdx.audio.newMusic(Gdx.files.internal("music/maintheme.mp3"));

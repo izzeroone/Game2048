@@ -405,7 +405,7 @@ public class Grid {
 
 
     public double monotonicity(){
-        int totals[] = new int[]{0};
+        int totals[] = new int[]{0, 0, 0, 0};
 
         //up . down directtion
         for (int x = 0; x < this.field.length; x++) {
