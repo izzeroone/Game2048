@@ -42,6 +42,7 @@ public class GameLogic {
     private long startTime = 0;
     public static int maxTime = 60000;
 
+
     public GameLogic() {
     }
 
@@ -415,10 +416,10 @@ public class GameLogic {
 
     public void autoPlay() {
         GameAI gameAI = new GameAI(this.grid);
-        while (true) {
             SearchResult best = gameAI.getBest();
             this.move(best.getDirection());
-        }
+//            this.move((int) Math.floor(Math.random() * 4));
+//            this.grid.printCurrentField();
 
     }
 

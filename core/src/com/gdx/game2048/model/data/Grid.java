@@ -192,17 +192,6 @@ public class Grid {
         return availableCells;
     }
 
-    public int getNumberOccupiedCells() {
-        int occupiedCells = 0;
-        for (int xx = 0; xx < field.length; xx++) {
-            for (int yy = 0; yy < field[0].length; yy++) {
-                if (field[xx][yy] != null) {
-                    occupiedCells++;
-                }
-            }
-        }
-        return occupiedCells;
-    }
 
     public boolean isCellsAvailable() {
         return (getAvailableCells().size() >= 1);
@@ -357,7 +346,7 @@ public class Grid {
 
                         if (this.isCellOccupied(targetCell)) {
                             Tile target = this.getCellContent(targetCell);
-                            double targetValue = target.getValue();
+                            int targetValue = target.getValue();
                             smootness -= Math.abs(value - targetValue);
                         }
                     }
@@ -457,6 +446,26 @@ public class Grid {
             }
         }
         return false;
+    }
+
+    public void printCurrentField(){
+        System.out.print("Currenf field : \n");
+        for (int x=0; x<this.field.length; x++) {
+            System.out.print("[");
+            for (int y=0; y<this.field[0].length; y++) {
+                if (this.isCellOccupied(new Cell(x, y))) {
+                    System.out.print(this.getCellContent(x, y).getValue());
+                } else {
+                    System.out.print("*");
+                }
+                System.out.print(" ");
+            }
+            System.out.print("]\n");
+        }
+        System.out.printf("Smoothness : %d\n", this.smoothness());
+        System.out.printf("Mono : %d\n", this.monotonicity());
+        System.out.printf("Maxcell : %d\n", this.maxValue());
+        System.out.printf("Emply : %d\n", this.getAvailableCells().size());
     }
 
 }

@@ -45,7 +45,7 @@ class SearchResult{
     }
 }
 public class GameAI {
-    private static final int MIN_SEARCH_TIME = 1000;
+    private static final int MIN_SEARCH_TIME = 100;
     private Grid field;
     public GameAI() {
 
@@ -65,15 +65,6 @@ public class GameAI {
                 emptyWeight  = 2.7,
                 maxWeight    = 1.0;
 
-        System.out.printf("Smoothness : %d \n", this.field.smoothness());
-        System.out.printf("Mono: %d \n", this.field.monotonicity());
-        System.out.printf("MaxValue : %d \n", this.field.maxValue());
-        System.out.printf("Eval : %f \n", this.field.smoothness() * smoothWeight
-                //+ this.grid.monotonicity() * monoWeight
-                //- this.grid.islands() * islandWeight
-                + this.field.monotonicity() * mono2Weight
-                + Math.log(emptyCells) * emptyWeight
-                + this.field.maxValue() * maxWeight);
         return this.field.smoothness() * smoothWeight
                 //+ this.grid.monotonicity() * monoWeight
                 //- this.grid.islands() * islandWeight
@@ -93,6 +84,8 @@ public class GameAI {
             Grid newGrid = this.field.clone();
             //Neu co di chuyen
             if (newGrid.move(direction)) {
+                System.out.println(translate[direction]);
+                newGrid.printCurrentField();
                 positions++;
                 if (newGrid.isWin()) {
                     result.setDirection(direction);
@@ -147,7 +140,7 @@ public class GameAI {
     public SearchResult iteratorDeep(){
 
         long start = System.currentTimeMillis();
-        int depth = 1;
+        int depth = 0;
         SearchResult best = new SearchResult();
         do {
             SearchResult newBest = this.search(depth, -10000, 10000, 0 ,0);
@@ -160,4 +153,7 @@ public class GameAI {
         } while ( System.currentTimeMillis() - start < MIN_SEARCH_TIME);
         return best;
    }
+
+   public String[] translate = new String[]{"Up", "Down", "Left", "Right"};
+
 }
