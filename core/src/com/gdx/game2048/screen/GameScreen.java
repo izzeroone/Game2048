@@ -106,8 +106,9 @@ public class GameScreen extends AbstractScreen {
         //Start game
         game.newGame();
         game.gameStart();
-        autoPlay.start();
-
+        if(autoPlay != null){
+            autoPlay.start();
+        }
         //Loading asset
         mainTheme = Gdx.audio.newMusic(Gdx.files.internal("music/maintheme.mp3"));
         fontGenerator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/ClearSans-Bold.ttf"));

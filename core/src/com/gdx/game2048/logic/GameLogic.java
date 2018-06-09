@@ -21,6 +21,7 @@ public class GameLogic {
     private static final long SPAWN_ANIMATION_TIME = GameScreen.BASE_ANIMATION_TIME;
     private static final long NOTIFICATION_DELAY_TIME = MOVE_ANIMATION_TIME + SPAWN_ANIMATION_TIME;
     private static final long NOTIFICATION_ANIMATION_TIME = GameScreen.BASE_ANIMATION_TIME * 5;
+    private static final int STARTED_CELL = 2;
     private static final String HIGH_SCORE = "high score";
     //Maximum number of mive to make winning state
     public static long timer = 0;
@@ -140,15 +141,10 @@ public class GameLogic {
     }
 
     private void addStartTiles(){
-        for(int xx = 0; xx < numCellX; xx++){
+
+        for(int xx = 0; xx < STARTED_CELL; xx++){
             //make random cell emply
-            int ignoreCellY = (int)(Math.random() * numCellY);
-            for(int yy = 0; yy < numCellY; yy++){
-                if(yy != ignoreCellY){
-                    //add tile to cell
-                    addTile(xx,yy);
-                }
-            }
+            addRandomTile();
         }
     }
 
@@ -283,31 +279,7 @@ public class GameLogic {
 
     }
 
-    //move spectific cell
-    public void move(int xx, int yy, int direction){
-//        mGameView.nextHint();
-//        SoundPoolManager.getInstance().playSound(R.raw.step);
-        animationGrid.cancelAnimations();
-        // 0: up, 1: right, 2: down, 3: left
-        if (!isActive()) {
-            return;
-        }
-        prepareUndoState();
-        clearMergedFrom();
-        boolean moved = moveAndCheck(xx, yy, direction);
-
-
-        if (moved) {
-            saveUndoState();
-            addRandomTile();
-            checkWin();
-            checkLose();
-        }
-        mGameScreen.resyncTime();
-//        mGameView.invalidate();
-    }
-
-    private boolean moveAndCheck(int xx, int yy, int direction){
+        private boolean moveAndCheck(int xx, int yy, int direction){
         boolean moved = false;
         //the the moving vector
         Cell vector = getMovingVector(direction);

@@ -65,6 +65,15 @@ public class GameAI {
                 emptyWeight  = 2.7,
                 maxWeight    = 1.0;
 
+        System.out.printf("Smoothness : %d \n", this.field.smoothness());
+        System.out.printf("Mono: %d \n", this.field.monotonicity());
+        System.out.printf("MaxValue : %d \n", this.field.maxValue());
+        System.out.printf("Eval : %f \n", this.field.smoothness() * smoothWeight
+                //+ this.grid.monotonicity() * monoWeight
+                //- this.grid.islands() * islandWeight
+                + this.field.monotonicity() * mono2Weight
+                + Math.log(emptyCells) * emptyWeight
+                + this.field.maxValue() * maxWeight);
         return this.field.smoothness() * smoothWeight
                 //+ this.grid.monotonicity() * monoWeight
                 //- this.grid.islands() * islandWeight
@@ -93,7 +102,7 @@ public class GameAI {
                     return result;
                 }
 
-                GameAI newAi = new GameAI(this.field);
+                GameAI newAi = new GameAI(this.field.clone());
                 if (depth == 0) {
                     result.setDirection(direction);
                     result.setScore(newAi.eval());
@@ -138,8 +147,7 @@ public class GameAI {
     public SearchResult iteratorDeep(){
 
         long start = System.currentTimeMillis();
-        System.out.println(System.currentTimeMillis() - start);
-        int depth = 0;
+        int depth = 1;
         SearchResult best = new SearchResult();
         do {
             SearchResult newBest = this.search(depth, -10000, 10000, 0 ,0);
@@ -149,7 +157,6 @@ public class GameAI {
                 best = newBest;
             }
             depth++;
-            System.out.println(System.currentTimeMillis() - start);
         } while ( System.currentTimeMillis() - start < MIN_SEARCH_TIME);
         return best;
    }
