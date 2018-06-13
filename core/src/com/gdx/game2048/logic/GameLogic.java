@@ -11,16 +11,12 @@ import com.gdx.game2048.model.data.GameState;
 import com.gdx.game2048.model.data.Grid;
 import com.gdx.game2048.screen.GameScreen;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 public class GameLogic {
     //timer and its update
-    private static final long MOVE_ANIMATION_TIME = GameScreen.BASE_ANIMATION_TIME;
-    private static final long SPAWN_ANIMATION_TIME = GameScreen.BASE_ANIMATION_TIME;
-    private static final long NOTIFICATION_DELAY_TIME = MOVE_ANIMATION_TIME + SPAWN_ANIMATION_TIME;
-    private static final long NOTIFICATION_ANIMATION_TIME = GameScreen.BASE_ANIMATION_TIME * 5;
+    public static final long MOVE_ANIMATION_TIME = GameScreen.BASE_ANIMATION_TIME;
+    public static final long SPAWN_ANIMATION_TIME = GameScreen.BASE_ANIMATION_TIME;
+    public static final long NOTIFICATION_DELAY_TIME = MOVE_ANIMATION_TIME + SPAWN_ANIMATION_TIME;
+    public static final long NOTIFICATION_ANIMATION_TIME = GameScreen.BASE_ANIMATION_TIME * 5;
     private static final int STARTED_CELL = 2;
     private static final String HIGH_SCORE = "high score";
     //Maximum number of mive to make winning state
@@ -154,22 +150,6 @@ public class GameLogic {
         }
     }
 
-    private void clearMergedFrom(){
-        //clear merge from to ready to merge
-        for(Tile[] array : grid.field){
-            for(Tile tile : array){
-                //check whether tile null to avoid exception
-                if(grid.isCellOccupied(tile)){
-                    tile.setMergedFrom(null);
-                }
-            }
-        }
-    }
-
-    private void moveTile(Tile tile, Cell cell){
-        //move tile to another cell
-        grid.moveTile(tile, cell);
-    }
 
     private void prepareUndoState() {
         grid.prepareSaveTiles();
@@ -215,22 +195,7 @@ public class GameLogic {
         //save current grid to buffer
         prepareUndoState();
 
-        //make travel loop varible
-        Cell vector = getMovingVector(direction);
-        List<Integer> travelX = makeTravelCellX(vector);
-        List<Integer> travelY = makeTravelCellY(vector);
-
-        boolean moved = false;
-        //clear merge from
-        clearMergedFrom();
-        //loop all the cell in grid
-        for(int xx : travelX){
-            for(int yy : travelY){
-                        if(moveAndCheck(xx, yy, direction) == true){
-                            moved = true;
-                        }
-            }
-        }
+        boolean moved = grid.move(direction, animationGrid);
 
         if(moved){
             //some cell has moved
@@ -246,115 +211,9 @@ public class GameLogic {
 
     }
 
-        private boolean moveAndCheck(int xx, int yy, int direction){
-        boolean moved = false;
-        //the the moving vector
-        Cell vector = getMovingVector(direction);
-        //get the content the current cell
-        Cell cell = new Cell(xx, yy);
-        Tile tile = grid.getCellContent(cell);
-        //check whether the current tile is empty or not
-        if(tile != null){
-            //find the farthest cell in the direction
-            Cell[] positions = findFarthestPosition(cell, vector);
-            //get the second cell because the first one is itself
-            Tile next = grid.getCellContent(positions[1]);
-            //whether they have the same value and not merge with other cell
-            if(next != null && next.getValue() == tile.getValue() && next.getMergedFrom() == null){
-                //they have the same value
-                //increment their value by 1
-                Tile merge = new Tile(positions[1], tile.getValue() + 1);
-                //set the 2 cells are merged
-                Tile[] temp = {tile, next};
-                merge.setMergedFrom(temp);
-                //remove the first one (or moving cell) and insert the merge cell
-                grid.insertTile(merge);
-                grid.removeTile(tile);
-                tile.updatePosition(positions[1]);
-                //add moving and merge animation
-                int[] extras = {xx, yy}; // the cell moving to
-                animationGrid.startAnimation(merge.getX(), merge.getY(), AnimationType.MOVE,
-                        MOVE_ANIMATION_TIME, 0, extras);
-                //merge animation after the move animation complete
-                animationGrid.startAnimation(merge.getX(), merge.getY(), AnimationType.MERGE,
-                        SPAWN_ANIMATION_TIME, MOVE_ANIMATION_TIME, null);
-                //update the score
-                score += merge.getValue();
-            } else {
-                //just move the cell
-                moveTile(tile, positions[0]);
-                int[] extras = {xx, yy, 0};
-                animationGrid.startAnimation(positions[0].getX(), positions[0].getY(), AnimationType.MOVE,
-                        MOVE_ANIMATION_TIME, 0, extras);
-            }
-
-            if(!positionsEqual(cell, tile)){
-                //same cell have move
-                moved = true;
-            }
-        }
-        return  moved;
-    }
-
-    private Cell getMovingVector(int direction){
-        Cell[] map = {
-                new Cell(0, -1), // up
-                new Cell(1, 0),  // right
-                new Cell(0, 1),  // down
-                new Cell(-1, 0)  // left
-        };
-        return map[direction];
-    }
-
-    private List<Integer> makeTravelCellX(Cell vector) {
-        List<Integer> traversals = new ArrayList<Integer>();
-
-        for (int xx = 0; xx < numCellX; xx++) {
-            traversals.add(xx);
-        }
-        if (vector.getX() == 1) {
-            Collections.reverse(traversals);
-        }
-
-        return traversals;
-    }
-
-    private List<Integer> makeTravelCellY(Cell vector) {
-        List<Integer> traversals = new ArrayList<Integer>();
-
-        for (int xx = 0; xx < numCellY; xx++) {
-            traversals.add(xx);
-        }
-        if (vector.getY() == 1) {
-            Collections.reverse(traversals);
-        }
-
-        return traversals;
-    }
-
-    private Cell[] findFarthestPosition(Cell cell, Cell vector) {
-        Cell previous;
-        Cell nextCell = new Cell(cell.getX(), cell.getY());
-        do {
-            previous = nextCell;
-            nextCell = new Cell(previous.getX() + vector.getX(),
-                    previous.getY() + vector.getY());
-        } while (grid.isCellWithinBounds(nextCell) && grid.isCellAvailable(nextCell));
-
-        return new Cell[]{previous, nextCell};
-    }
-
-
-    private boolean positionsEqual(Cell first, Cell second) {
-        return first.getX() == second.getX() && first.getY() == second.getY();
-    }
-
     private void checkLose() {
         if(false){
             gameState = GameState.LOST;
-//            MediaPlayerManager.getInstance().pause();
-//            SoundPoolManager.getInstance().playSound(R.raw.you_lost);
-//            MediaPlayerManager.getInstance().resume();
             endGame();
         }
     }
@@ -362,9 +221,6 @@ public class GameLogic {
     private  void checkWin(){
         if(isWin()){
             gameState = GameState.WIN;
-//            MediaPlayerManager.getInstance().pause();
-//            SoundPoolManager.getInstance().playSound(R.raw.you_win);
-//            MediaPlayerManager.getInstance().resume();
             endGame();
         }
     }

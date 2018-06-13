@@ -1,9 +1,14 @@
 package com.gdx.game2048.model.data;
 
+import com.gdx.game2048.model.animation.AnimationGrid;
+import com.gdx.game2048.model.animation.AnimationType;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static com.gdx.game2048.logic.GameLogic.MOVE_ANIMATION_TIME;
+import static com.gdx.game2048.logic.GameLogic.SPAWN_ANIMATION_TIME;
 
 
 public class Grid {
@@ -107,6 +112,10 @@ public class Grid {
     }
 
     public boolean move(int direction) {
+        return move(direction, null);
+    }
+
+    public boolean move(int direction, AnimationGrid animationGrid) {
 
         //make travel loop varible
         Cell vector = getMovingVector(direction);
@@ -119,7 +128,7 @@ public class Grid {
         //loop all the cell in grid
         for (int xx : travelX) {
             for (int yy : travelY) {
-                if (moveAndCheck(xx, yy, direction) == true) {
+                if (moveAndCheck(xx, yy, direction, animationGrid) == true) {
                     moved = true;
                 }
             }
@@ -127,7 +136,11 @@ public class Grid {
         return moved;
     }
 
-    private boolean moveAndCheck(int xx, int yy, int direction) {
+    public boolean moveAndCheck(int xx, int yy, int direction) {
+        return moveAndCheck(xx, yy, direction, null);
+    }
+
+    public boolean moveAndCheck(int xx, int yy, int direction, AnimationGrid animationGrid) {
         boolean moved = false;
         //the the moving vector
         Cell vector = getMovingVector(direction);
@@ -153,10 +166,24 @@ public class Grid {
                 removeTile(tile);
                 tile.updatePosition(positions[1]);
                 score += tile.getValue() + 1;
+                if(animationGrid != null){
+                    //add moving and merge animation
+                    int[] extras = {xx, yy}; // the cell moving to
+                    animationGrid.startAnimation(merge.getX(), merge.getY(), AnimationType.MOVE,
+                            MOVE_ANIMATION_TIME, 0, extras);
+                    //merge animation after the move animation complete
+                    animationGrid.startAnimation(merge.getX(), merge.getY(), AnimationType.MERGE,
+                            SPAWN_ANIMATION_TIME, MOVE_ANIMATION_TIME, null);
+                }
 
             } else {
                 //just move the cell
                 moveTile(tile, positions[0]);
+                if(animationGrid != null){
+                    int[] extras = {xx, yy, 0};
+                    animationGrid.startAnimation(positions[0].getX(), positions[0].getY(), AnimationType.MOVE,
+                            MOVE_ANIMATION_TIME, 0, extras);
+                }
             }
 
             if (!positionsEqual(cell, tile)) {
@@ -166,7 +193,6 @@ public class Grid {
         }
         return moved;
     }
-
 
     private boolean positionsEqual(Cell first, Cell second) {
         return first.getX() == second.getX() && first.getY() == second.getY();
@@ -240,39 +266,27 @@ public class Grid {
     }
 
     public void saveTiles() {
-        for (int xx = 0; xx < bufferField.length; xx++) {
-            for (int yy = 0; yy < bufferField[0].length; yy++) {
-                if (bufferField[xx][yy] == null) {
-                    undoField[xx][yy] = null;
-                } else {
-                    undoField[xx][yy] = new Tile(xx, yy, bufferField[xx][yy].getValue());
-                }
-            }
-        }
+        copyField(bufferField, undoField);
     }
 
     public void prepareSaveTiles() {
-        for (int xx = 0; xx < field.length; xx++) {
-            for (int yy = 0; yy < field[0].length; yy++) {
-                if (field[xx][yy] == null) {
-                    bufferField[xx][yy] = null;
+        copyField(field, bufferField);
+    }
+
+    private void copyField(Tile[][] srcField, Tile[][] desField) {
+        for (int xx = 0; xx < srcField.length; xx++) {
+            for (int yy = 0; yy < srcField[0].length; yy++) {
+                if (srcField[xx][yy] == null) {
+                    desField[xx][yy] = null;
                 } else {
-                    bufferField[xx][yy] = new Tile(xx, yy, field[xx][yy].getValue());
+                    desField[xx][yy] = new Tile(xx, yy, srcField[xx][yy].getValue());
                 }
             }
         }
     }
 
     public void revertTiles() {
-        for (int xx = 0; xx < undoField.length; xx++) {
-            for (int yy = 0; yy < undoField[0].length; yy++) {
-                if (undoField[xx][yy] == null) {
-                    field[xx][yy] = null;
-                } else {
-                    field[xx][yy] = new Tile(xx, yy, undoField[xx][yy].getValue());
-                }
-            }
-        }
+        copyField(undoField, field);
     }
 
     public void clearGrid() {

@@ -95,11 +95,6 @@ public class GameScreen extends AbstractScreen {
                 public void run() {
                     while (true){
                         thatGame.autoPlay();
-//                        try {
-//                            Thread.sleep(1000);
-//                        } catch (InterruptedException e) {
-//                            e.printStackTrace();
-//                        }
                     }
 
                 }
