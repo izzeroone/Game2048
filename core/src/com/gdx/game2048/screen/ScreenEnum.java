@@ -7,6 +7,11 @@ public enum ScreenEnum {
             return new MenuScreen();
         }
     },
+    SCORE {
+        public AbstractScreen getScreen(Object... params) {
+            return new ScoreScreen();
+        }
+    },
     GAME{
         @Override
         public AbstractScreen getScreen(Object... params) {

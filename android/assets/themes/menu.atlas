@@ -6,28 +6,28 @@ filter: Nearest,Nearest
 repeat: none
 3x3
   rotate: false
-  xy: 2, 552
+  xy: 2, 542
   size: 508, 446
   orig: 508, 446
   offset: 0, 0
   index: -1
 4x4
   rotate: false
-  xy: 2, 104
+  xy: 2, 94
   size: 508, 446
   orig: 508, 446
   offset: 0, 0
   index: -1
 5x5
   rotate: false
-  xy: 512, 552
+  xy: 512, 542
   size: 508, 446
   orig: 508, 446
   offset: 0, 0
   index: -1
 6x6
   rotate: false
-  xy: 512, 104
+  xy: 512, 94
   size: 508, 446
   orig: 508, 446
   offset: 0, 0
@@ -35,14 +35,14 @@ repeat: none
 ic_next
   rotate: false
   xy: 2, 2
-  size: 100, 100
-  orig: 100, 100
+  size: 90, 90
+  orig: 90, 90
   offset: 0, 0
   index: -1
 ic_pre
   rotate: false
-  xy: 104, 2
-  size: 100, 100
-  orig: 100, 100
+  xy: 94, 2
+  size: 90, 90
+  orig: 90, 90
   offset: 0, 0
   index: -1

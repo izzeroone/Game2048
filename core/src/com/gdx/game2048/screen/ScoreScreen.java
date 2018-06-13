@@ -3,7 +3,6 @@ package com.gdx.game2048.screen;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -23,10 +22,10 @@ import javafx.util.Pair;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
-public class MenuScreen extends AbstractScreen {
+public class ScoreScreen extends AbstractScreen {
 
     //Tag for debug
-    private static final String TAG = MenuScreen.class.getSimpleName();
+    private static final String TAG = ScoreScreen.class.getSimpleName();
 
     //Animation constant
     public static final int BASE_ANIMATION_TIME = 100;
@@ -40,10 +39,7 @@ public class MenuScreen extends AbstractScreen {
 
     private TextureAtlas gameAtlas;
 
-    private com.badlogic.gdx.scenes.scene2d.ui.Button nextLevelButton;
-    private com.badlogic.gdx.scenes.scene2d.ui.Button preLevelButton;
-    private com.badlogic.gdx.scenes.scene2d.ui.Button nextAIButton;
-    private com.badlogic.gdx.scenes.scene2d.ui.Button preAIButton;
+    private Button backButton;
     private Image imageLevel;
 
     private int iconPaddingSize;
@@ -75,22 +71,11 @@ public class MenuScreen extends AbstractScreen {
     public void buildStage() {
         batch = new SpriteBatch();
 
-        levelInfo = new LinkedHashMap<Integer, Pair<String, String>>();
-        levelInfo.put(3, new Pair<String, String>("3x3", "3x3"));
-        levelInfo.put(4, new Pair<String, String>("4x4", "4x4"));
-        levelInfo.put(5, new Pair<String, String>("5x5", "5x5"));
-        levelInfo.put(6, new Pair<String, String>("6x6", "6x6"));
-
-        aiInfo = new LinkedHashMap<Integer, String>();
-        aiInfo.put(1, "Dump AI");
-        aiInfo.put(2, "Smart AI");
-        aiInfo.put(3, "Crazy AI");
-
         //Loading asset
         fontGenerator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/ClearSans-Bold.ttf"));
         fontParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         //Step 2: TextureAtlas with atlas path
-        gameAtlas = new TextureAtlas("themes/menu.atlas");
+        gameAtlas = new TextureAtlas("themes/score.atlas");
 
         //Step 3: create skin
         gameSkin = new Skin(gameAtlas);
@@ -99,10 +84,7 @@ public class MenuScreen extends AbstractScreen {
         createButton();
 
         //Step 6: add to stage
-        this.addActor(nextLevelButton);
-        this.addActor(preLevelButton);
-        this.addActor(nextAIButton);
-        this.addActor(preAIButton);
+        this.addActor(backButton);
         this.addActor(imageLevel);
 
         for (TextButton line :
@@ -147,17 +129,8 @@ public class MenuScreen extends AbstractScreen {
         float rootLine = height* 0.54f;
         float linePadding = height* 0.1f;
 
-        nextLevelButton.setPosition(screenMidX + buttonPaddingMidX - iconSize_Width/2 , rootLine, Align.center);
-        nextLevelButton.setSize(iconSize_Width, iconSize_Height);
-
-        preLevelButton.setPosition(screenMidX - buttonPaddingMidX + iconSize_Width/2 , rootLine, Align.center);
-        preLevelButton.setSize(iconSize_Width, iconSize_Height);
-
-        nextAIButton.setPosition(screenMidX + buttonPaddingMidX*1.3f - iconSize_Width/2  , rootLine - linePadding*2, Align.center);
-        nextAIButton.setSize(iconSize_Width, iconSize_Height);
-
-        preAIButton.setPosition(screenMidX - buttonPaddingMidX*1.3f + iconSize_Width/2  , rootLine - linePadding*2, Align.center);
-        preAIButton.setSize(iconSize_Width, iconSize_Height);
+        backButton.setPosition(screenMidX + buttonPaddingMidX - iconSize_Width/2 , rootLine, Align.center);
+        backButton.setSize(iconSize_Width, iconSize_Height);
 
         imageLevel.setSize(imageSize, imageSize);
         imageLevel.setPosition(width*0.5f , height*0.78f, Align.center);
@@ -220,39 +193,14 @@ public class MenuScreen extends AbstractScreen {
     private void createButton() {
 
         //Step 4: create button
-        nextLevelButton = new com.badlogic.gdx.scenes.scene2d.ui.Button(gameSkin.getDrawable("ic_next"), gameSkin.getDrawable("ic_next"));
-        preLevelButton = new com.badlogic.gdx.scenes.scene2d.ui.Button(gameSkin.getDrawable("ic_pre"), gameSkin.getDrawable("ic_pre"));
-        nextAIButton = new com.badlogic.gdx.scenes.scene2d.ui.Button(gameSkin.getDrawable("ic_next"), gameSkin.getDrawable("ic_next"));
-        preAIButton = new Button(gameSkin.getDrawable("ic_pre"), gameSkin.getDrawable("ic_pre"));
-        imageLevel = new Image(gameSkin.getDrawable(levelInfo.get(curLevel).getValue()));
+        imageLevel = new Image(gameSkin.getDrawable("high_score"));
 
         //Step 5: add event
-        nextLevelButton.addListener(new ClickListener(){
+        backButton.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 super.clicked(event, x, y);
                 nextLevel();
-            }
-        });
-        preLevelButton.addListener(new ClickListener(){
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                super.clicked(event, x, y);
-                preLevel();
-            }
-        });
-        nextAIButton.addListener(new ClickListener(){
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                super.clicked(event, x, y);
-                nextAI();
-            }
-        });
-        preAIButton.addListener(new ClickListener(){
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                super.clicked(event, x, y);
-                preAI();
             }
         });
 

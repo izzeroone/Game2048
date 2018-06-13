@@ -2,7 +2,6 @@ package com.gdx.game2048.screen;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -10,14 +9,13 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.gdx.game2048.logic.GameLogic;
+import com.gdx.game2048.manager.MusicManager;
 import com.gdx.game2048.model.animation.AnimationCell;
 import com.gdx.game2048.model.animation.AnimationType;
 import com.gdx.game2048.model.data.Tile;
@@ -69,9 +67,6 @@ public class GameScreen extends AbstractScreen {
     private long lastFPSTime = System.currentTimeMillis();
     public boolean refreshLastTime = false;
 
-    //Music
-    public Music mainTheme;
-
     //Batch for drawing;
     private SpriteBatch batch;
 
@@ -113,7 +108,6 @@ public class GameScreen extends AbstractScreen {
             autoPlay.start();
         }
         //Loading asset
-        mainTheme = Gdx.audio.newMusic(Gdx.files.internal("music/maintheme.mp3"));
         fontGenerator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/ClearSans-Bold.ttf"));
         fontParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         gameAtlas = new TextureAtlas("themes/default.atlas");
@@ -132,7 +126,7 @@ public class GameScreen extends AbstractScreen {
         Gdx.input.setInputProcessor(this);
 
         //Playing music
-        mainTheme.play();
+        MusicManager.getInstance().playMain();
     }
 
     @Override
