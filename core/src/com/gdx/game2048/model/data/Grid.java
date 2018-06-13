@@ -19,6 +19,7 @@ public class Grid {
     //to save current stage then assign to undoField to avoid mess thing up
     private final Tile[][] bufferField;
     public int score = 0;
+    public boolean playerTurn = false;
 
     public Grid(int sizeX, int sizeY) {
         field = new Tile[sizeX][sizeY];
@@ -30,10 +31,10 @@ public class Grid {
     }
 
     public void addTile(int x, int y) {
-        //ratio 0,5 for 1. 0,3 for 2, 0,2 for 3
+        //ratio 0,8 for 1 and 0,2 for 2
         //check whether the cell is null
         if (field[x][y] == null) {
-            int value = Math.random() <= 0.5 ? 1 : Math.random() <= 0.6 ? 2 : 3;
+            int value = Math.random() <= 0.9 ? 1 : 2;
             Tile tile = new Tile(new Cell(x, y), value);
             spawnTile(tile);
         }
@@ -122,7 +123,9 @@ public class Grid {
     }
 
     public boolean move(int direction, AnimationGrid animationGrid) {
-
+        if(!playerTurn){
+            return false;
+        }
         //make travel loop varible
         Cell vector = getMovingVector(direction);
         List<Integer> travelX = makeTravelCellX(vector);
@@ -346,6 +349,7 @@ public class Grid {
             }
         }
         newGrid.score = score;
+        newGrid.playerTurn = playerTurn;
         return newGrid;
     }
 
@@ -380,7 +384,7 @@ public class Grid {
     public int monotonicity(){
         int totals[] = new int[]{0, 0, 0, 0};
 
-        //up . down directtion
+        //left . right directtion
         for (int x = 0; x < this.field.length; x++) {
             int current = 0;
             int next = current + 1;
@@ -408,7 +412,7 @@ public class Grid {
             }
         }
 
-//         left/right direction
+//         up/down direction
         for (int y=0; y<this.field[0].length; y++) {
             int current = 0;
             int next = current+1;

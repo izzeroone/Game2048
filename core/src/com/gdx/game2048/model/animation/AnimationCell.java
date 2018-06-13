@@ -8,10 +8,10 @@ import com.gdx.game2048.model.data.Cell;
 //A cell contain information about animation.
 public class AnimationCell extends Cell {
     public  int[] extras;
-    private AnimationType animationType;
+    public AnimationType animationType;
     private long animationTime;
     private long delayTime;
-    private long timeElapsed;
+    private long timeElapsed = 0;
 
     public AnimationCell(int x, int y, AnimationType animationType, long length, long delay, int[] extras) {
         super(x, y);

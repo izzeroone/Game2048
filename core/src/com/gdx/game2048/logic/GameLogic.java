@@ -3,6 +3,8 @@ package com.gdx.game2048.logic;
 //Our game
 
 
+import com.badlogic.gdx.Game;
+import com.gdx.game2048.model.animation.AnimationCell;
 import com.gdx.game2048.model.data.Tile;
 import com.gdx.game2048.model.animation.AnimationGrid;
 import com.gdx.game2048.model.animation.AnimationType;
@@ -33,7 +35,6 @@ public class GameLogic {
     public long score = 0;
     public long lastScore = 0;
     private long bufferScore;
-
 
     public GameLogic() {
     }
@@ -69,6 +70,7 @@ public class GameLogic {
         addStartTiles();
         //show the winGrid
         gameState = GameState.READY;
+        //set up computer thread
         //cancel all animation and add spawn animation
         animationGrid.cancelAnimations();
         spawnGridAnimation();
@@ -92,6 +94,7 @@ public class GameLogic {
             //get the hint
             //play sound
             //refresh view
+            grid.playerTurn = true;
             mGameScreen.refreshLastTime = true;
             mGameScreen.resyncTime();
 
@@ -167,10 +170,14 @@ public class GameLogic {
 
 //        SoundPoolManager.getInstance().playSound(R.raw.step);
         //cancel all animation
-        animationGrid.cancelAnimations();
+//        animationGrid.cancelAnimations();
         if(!isActive()){
             return;
         }
+        if (!grid.playerTurn){
+            return;
+        }
+
         //save current grid to buffer
         prepareUndoState();
 
@@ -179,8 +186,9 @@ public class GameLogic {
         if(moved){
             //some cell has moved
             //save Undostate and check for Win Lose
+            grid.playerTurn = false;
             saveUndoState();
-            addRandomTile();
+            computerMove();
             //Update score
             score = grid.score;
             checkWin();
@@ -188,7 +196,11 @@ public class GameLogic {
         }
 
         mGameScreen.resyncTime();
-//        mGameView.invalidate();
+    }
+
+    public void computerMove(){
+        addRandomTile();
+        this.grid.playerTurn = true;
 
     }
 
@@ -218,10 +230,13 @@ public class GameLogic {
     }
 
     public void autoPlay() {
-        GameAI gameAI = new GameAI(this.grid);
-            SearchResult best = gameAI.getBest();
-            System.out.printf("Direction : %s \n", gameAI.translate[best.getDirection()]);
-            this.move(best.getDirection());
+            GameAI gameAI = new GameAI(this.grid);
+            while (true){
+                SearchResult best = gameAI.getBest();
+                System.out.printf("Eval : %f \n", gameAI.eval());
+                this.move(best.getMove());
+            }
+
     }
 
 

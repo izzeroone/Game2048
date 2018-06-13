@@ -32,7 +32,7 @@ public class GameScreen extends AbstractScreen {
     private static final String TAG = GameScreen.class.getSimpleName();
 
     //Animation constant
-    public static final int BASE_ANIMATION_TIME = 100;
+    public static final int BASE_ANIMATION_TIME = 200;
     private static final float MERGING_ACCEL = -0.5f;
     private static final float INITIAL_VELO = (1 - MERGING_ACCEL) / 4;
 
@@ -87,15 +87,7 @@ public class GameScreen extends AbstractScreen {
         this.game = new GameLogic(numCellX, numCellY, this);
         final GameLogic thatGame = this.game;
         if(auto){
-            autoPlay = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    while (true){
-                        thatGame.autoPlay();
-                    }
-
-                }
-            });
+            autoPlay = new Thread(() -> thatGame.autoPlay());
         }
     }
 
