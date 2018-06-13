@@ -2,6 +2,7 @@ package com.gdx.game2048.screen;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -9,13 +10,14 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.gdx.game2048.logic.GameLogic;
-import com.gdx.game2048.manager.MusicManager;
 import com.gdx.game2048.model.animation.AnimationCell;
 import com.gdx.game2048.model.animation.AnimationType;
 import com.gdx.game2048.model.data.Tile;
@@ -30,7 +32,7 @@ public class GameScreen extends AbstractScreen {
     private static final String TAG = GameScreen.class.getSimpleName();
 
     //Animation constant
-    public static final int BASE_ANIMATION_TIME = 100;
+    public static final int BASE_ANIMATION_TIME = 200;
     private static final float MERGING_ACCEL = -0.5f;
     private static final float INITIAL_VELO = (1 - MERGING_ACCEL) / 4;
 
@@ -49,13 +51,10 @@ public class GameScreen extends AbstractScreen {
     public Button homeButton;
     public Button restartButton;
     public Button backButton;
-    public Button startButton;
-    public boolean restartButtonEnabled = false;
     public int iconSize;
     public int iconPaddingSize;
 
     //Score
-    public Rectangle scoreRect = new Rectangle();
     public BitmapFont scoreFont;
     public String gameScore;
     public TextButton scoreDisplay;
@@ -67,11 +66,18 @@ public class GameScreen extends AbstractScreen {
     private long lastFPSTime = System.currentTimeMillis();
     public boolean refreshLastTime = false;
 
+    //Music
+    public Music mainTheme;
+
     //Batch for drawing;
     private SpriteBatch batch;
 
-    //Threading
+    //auto play
     Thread autoPlay;
+
+    //game input
+    Thread gameMoveThread;
+    int inputDirection = -1;
 
     public GameScreen() {
         game = new GameLogic(this);
@@ -85,15 +91,7 @@ public class GameScreen extends AbstractScreen {
         this.game = new GameLogic(numCellX, numCellY, this);
         final GameLogic thatGame = this.game;
         if(auto){
-            autoPlay = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    while (true){
-                        thatGame.autoPlay();
-                    }
-
-                }
-            });
+            autoPlay = new Thread(() -> thatGame.autoPlay());
         }
     }
 
@@ -108,6 +106,7 @@ public class GameScreen extends AbstractScreen {
             autoPlay.start();
         }
         //Loading asset
+        mainTheme = Gdx.audio.newMusic(Gdx.files.internal("music/maintheme.mp3"));
         fontGenerator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/ClearSans-Bold.ttf"));
         fontParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         gameAtlas = new TextureAtlas("themes/default.atlas");
@@ -126,7 +125,7 @@ public class GameScreen extends AbstractScreen {
         Gdx.input.setInputProcessor(this);
 
         //Playing music
-        MusicManager.getInstance().playMain();
+//        mainTheme.play();
     }
 
     @Override
@@ -184,8 +183,7 @@ public class GameScreen extends AbstractScreen {
                 Tile currentTile = game.grid.getCellContent(xx, yy);
                 if (currentTile != null) {
                     //Get and represent the value of the tile
-                    int value = currentTile.getValue();
-                    int index = value;
+                    int index = currentTile.getValue();
 
                     //Check for any active animations
                     ArrayList<AnimationCell> aArray = game.animationGrid.getAnimationCell(xx, yy);
@@ -205,24 +203,18 @@ public class GameScreen extends AbstractScreen {
                         switch (aCell.getAnimationType()){
                             case MOVE:
                                 percentDone = aCell.getPercentageDone();
-                                int tempIndex = index;
-                                if (aArray.size() >= 2) {
-                                    tempIndex = tempIndex - 1;
-                                }
                                 int previousX = aCell.extras[0];
                                 int previousY = aCell.extras[1];
                                 int currentX = currentTile.getX();
                                 int currentY = currentTile.getY();
                                 int dX = (int) ((currentX - previousX) * (cellSize + cellPadding) * (percentDone - 1) * 1.0);
                                 int dY = (int) ((currentY - previousY) * (cellSize + cellPadding) * (percentDone - 1) * 1.0);
-                                //drawDrawable(bitmapCell[tempIndex], sX + dX, sY + dY, eX + dX, eY + dY);
                                 drawCell(sX + dX, sY + dY, eX + dX, eY + dY, index);
                                 break;
                             case SPAWN:
                                 percentDone = aCell.getPercentageDone();
                                 textScaleSize = (float) (percentDone);
                                 cellScaleSize = cellSize / 2 * (1 - textScaleSize);
-                                //drawDrawable(bitmapCell[index], sX + cellScaleSize, sY +cellScaleSize, eX - cellScaleSize, eY - cellScaleSize);
                                 drawCell(sX + cellScaleSize, sY + cellScaleSize, eX - cellScaleSize, eY - cellScaleSize, index);
                                 break;
                             case MERGE:
@@ -231,12 +223,9 @@ public class GameScreen extends AbstractScreen {
                                         + MERGING_ACCEL * percentDone * percentDone / 2);
 
                                 cellScaleSize = cellSize / 2 * (1 - textScaleSize);
-                                //drawDrawable(bitmapCell[index], sX + cellScaleSize, sY +cellScaleSize, eX - cellScaleSize, eY - cellScaleSize);
                                 drawCell(sX + cellScaleSize, sY +cellScaleSize, eX - cellScaleSize, eY - cellScaleSize, index);
                                 break;
                             case FADE_GLOBAL:
-                                //bitmapCell[index].setAlpha((int)(((aCell.getPercentageDone()) * 255) >= 255 ? 255 : (aCell.getPercentageDone()) * 255));
-                                //drawDrawable(bitmapCell[index], sX, sY, eX, eY);
                                 drawCell(sX, sY, eX, eY, index);
                                 break;
                         }
@@ -327,19 +316,25 @@ public class GameScreen extends AbstractScreen {
 
         if(Gdx.input.isKeyJustPressed(Input.Keys.UP)){
             System.out.println("Move up");
-            game.move(2);
+            game.move(0);
+            game.grid.printCurrentField();
         }
         if(Gdx.input.isKeyJustPressed(Input.Keys.DOWN)){
             System.out.println("Move down");
-            game.move(0);
+            game.move(2);
+            game.grid.printCurrentField();
         }
         if(Gdx.input.isKeyJustPressed(Input.Keys.LEFT)){
             System.out.println("Move left");
             game.move(3);
+            game.grid.printCurrentField();
         }
         if(Gdx.input.isKeyJustPressed(Input.Keys.RIGHT)){
             System.out.println("Move right");
             game.move(1);
+            game.grid.printCurrentField();
         }
+
+
     }
 }

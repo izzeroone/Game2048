@@ -3,6 +3,8 @@ package com.gdx.game2048.logic;
 //Our game
 
 
+import com.badlogic.gdx.Game;
+import com.gdx.game2048.model.animation.AnimationCell;
 import com.gdx.game2048.model.data.Tile;
 import com.gdx.game2048.model.animation.AnimationGrid;
 import com.gdx.game2048.model.animation.AnimationType;
@@ -34,7 +36,6 @@ public class GameLogic {
     public long lastScore = 0;
     private long bufferScore;
 
-
     public GameLogic() {
     }
 
@@ -48,10 +49,6 @@ public class GameLogic {
         this.mGameScreen = mGameScreen;
     }
 
-    public void setSize(int numCellXX, int numCellYY, int time){
-        numCellX = numCellXX;
-        numCellY = numCellYY;
-    }
 
     public void newGame(){
         if(grid == null){
@@ -73,6 +70,7 @@ public class GameLogic {
         addStartTiles();
         //show the winGrid
         gameState = GameState.READY;
+        //set up computer thread
         //cancel all animation and add spawn animation
         animationGrid.cancelAnimations();
         spawnGridAnimation();
@@ -96,6 +94,7 @@ public class GameLogic {
             //get the hint
             //play sound
             //refresh view
+            grid.playerTurn = true;
             mGameScreen.refreshLastTime = true;
             mGameScreen.resyncTime();
 
@@ -106,7 +105,6 @@ public class GameLogic {
 
 
     private void addStartTiles(){
-
         for(int xx = 0; xx < STARTED_CELL; xx++){
             //make random cell emply
             addRandomTile();
@@ -116,28 +114,12 @@ public class GameLogic {
     private void addRandomTile(){
         if (grid.isCellsAvailable()) {
             Cell cell = grid.randomAvailableCell();
-            addTile(cell.getX(), cell.getY());
+            grid.addTile(cell.getX(), cell.getY());
+            animationGrid.startAnimation(cell.getX(), cell.getY(), AnimationType.SPAWN,
+                    SPAWN_ANIMATION_TIME, MOVE_ANIMATION_TIME, null);
         }
     }
 
-    private void addTile(int x, int y)
-    {
-        //ratio 0,7 for 1. 0,25 for 2, 0,05 for 3
-        //check whether the cell is null
-        if(grid.field[x][y] == null){
-            int value = Math.random() <= 0.7 ? 1 : Math.random() <= 0.83 ? 2 : 3;
-            Tile tile = new Tile(new Cell(x, y), value);
-            spawnTile(tile);
-        }
-    }
-
-    private void spawnTile(Tile tile){
-        //insert to grid
-        grid.insertTile(tile);
-        //add animation
-        animationGrid.startAnimation(tile.getX(), tile.getY(), AnimationType.SPAWN,
-                SPAWN_ANIMATION_TIME, MOVE_ANIMATION_TIME, null);
-    }
 
     private void spawnGridAnimation(){
         for (int xx = 0; xx < grid.field.length; xx++) {
@@ -188,10 +170,14 @@ public class GameLogic {
 
 //        SoundPoolManager.getInstance().playSound(R.raw.step);
         //cancel all animation
-        animationGrid.cancelAnimations();
+//        animationGrid.cancelAnimations();
         if(!isActive()){
             return;
         }
+        if (!grid.playerTurn){
+            return;
+        }
+
         //save current grid to buffer
         prepareUndoState();
 
@@ -200,14 +186,21 @@ public class GameLogic {
         if(moved){
             //some cell has moved
             //save Undostate and check for Win Lose
+            grid.playerTurn = false;
             saveUndoState();
-            addRandomTile();
+            computerMove();
+            //Update score
+            score = grid.score;
             checkWin();
             checkLose();
         }
 
         mGameScreen.resyncTime();
-//        mGameView.invalidate();
+    }
+
+    public void computerMove(){
+        addRandomTile();
+        this.grid.playerTurn = true;
 
     }
 
@@ -237,10 +230,13 @@ public class GameLogic {
     }
 
     public void autoPlay() {
-        GameAI gameAI = new GameAI(this.grid);
-            SearchResult best = gameAI.getBest();
-            System.out.printf("Direction : %s \n", gameAI.translate[best.getDirection()]);
-            this.move(best.getDirection());
+            GameAI gameAI = new GameAI(this.grid);
+            while (true){
+                SearchResult best = gameAI.getBest();
+                System.out.printf("Eval : %f \n", gameAI.eval());
+                this.move(best.getMove());
+            }
+
     }
 
 
