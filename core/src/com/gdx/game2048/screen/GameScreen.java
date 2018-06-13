@@ -76,7 +76,8 @@ public class GameScreen extends AbstractScreen {
     Thread autoPlay;
 
     //game input
-    Thread gameMoveThread;
+    Thread computerThread;
+
     int inputDirection = -1;
 
     public GameScreen() {
@@ -93,6 +94,14 @@ public class GameScreen extends AbstractScreen {
         if(auto){
             autoPlay = new Thread(() -> thatGame.autoPlay());
         }
+        computerThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (true) {
+                    thatGame.computerMove();
+                }
+            }
+        });
     }
 
     @Override
@@ -105,6 +114,11 @@ public class GameScreen extends AbstractScreen {
         if(autoPlay != null){
             autoPlay.start();
         }
+
+        if (computerThread != null) {
+            computerThread.start();
+        }
+
         //Loading asset
         mainTheme = Gdx.audio.newMusic(Gdx.files.internal("music/maintheme.mp3"));
         fontGenerator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/ClearSans-Bold.ttf"));

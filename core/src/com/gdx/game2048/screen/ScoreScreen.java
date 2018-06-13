@@ -84,7 +84,7 @@ public class ScoreScreen extends AbstractScreen {
         createButton();
 
         //Step 6: add to stage
-        this.addActor(backButton);
+//        this.addActor(backButton);
         this.addActor(imageLevel);
 
         for (TextButton line :
@@ -129,8 +129,8 @@ public class ScoreScreen extends AbstractScreen {
         float rootLine = height* 0.54f;
         float linePadding = height* 0.1f;
 
-        backButton.setPosition(screenMidX + buttonPaddingMidX - iconSize_Width/2 , rootLine, Align.center);
-        backButton.setSize(iconSize_Width, iconSize_Height);
+//        backButton.setPosition(screenMidX + buttonPaddingMidX - iconSize_Width/2 , rootLine, Align.center);
+//        backButton.setSize(iconSize_Width, iconSize_Height);
 
         imageLevel.setSize(imageSize, imageSize);
         imageLevel.setPosition(width*0.5f , height*0.78f, Align.center);
@@ -196,13 +196,13 @@ public class ScoreScreen extends AbstractScreen {
         imageLevel = new Image(gameSkin.getDrawable("high_score"));
 
         //Step 5: add event
-        backButton.addListener(new ClickListener(){
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                super.clicked(event, x, y);
-                nextLevel();
-            }
-        });
+//        backButton.addListener(new ClickListener(){
+//            @Override
+//            public void clicked(InputEvent event, float x, float y) {
+//                super.clicked(event, x, y);
+//                nextLevel();
+//            }
+//        });
 
         fontParameter.size = Gdx.graphics.getWidth() / 11;
         fontParameter.color = Color.valueOf("#efb75d");
@@ -217,9 +217,9 @@ public class ScoreScreen extends AbstractScreen {
         selectedTextButtonStyle = new TextButton.TextButtonStyle();
         selectedTextButtonStyle.font = selectedTextFont;
 
-        lines.put("level", new TextButton(levelInfo.get(curLevel).getKey(), normalTextButtonStyle));
+//        lines.put("level", new TextButton(levelInfo.get(curLevel).getKey(), normalTextButtonStyle));
         lines.put("startGame", new TextButton("Start Game", normalTextButtonStyle));
-        lines.put("ai", new TextButton(aiInfo.get(curAI), normalTextButtonStyle));
+//        lines.put("ai", new TextButton(aiInfo.get(curAI), normalTextButtonStyle));
         lines.put("startAI", new TextButton("Play With Help" , normalTextButtonStyle));
         lines.put("music", new TextButton("Music: ", normalTextButtonStyle));
         musicStateChange();

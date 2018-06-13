@@ -13,6 +13,8 @@ import com.gdx.game2048.model.data.GameState;
 import com.gdx.game2048.model.data.Grid;
 import com.gdx.game2048.screen.GameScreen;
 
+import java.util.Timer;
+
 public class GameLogic {
     //timer and its update
     public static final long MOVE_ANIMATION_TIME = GameScreen.BASE_ANIMATION_TIME;
@@ -170,7 +172,7 @@ public class GameLogic {
 
 //        SoundPoolManager.getInstance().playSound(R.raw.step);
         //cancel all animation
-//        animationGrid.cancelAnimations();
+        animationGrid.cancelAnimations();
         if(!isActive()){
             return;
         }
@@ -188,7 +190,6 @@ public class GameLogic {
             //save Undostate and check for Win Lose
             grid.playerTurn = false;
             saveUndoState();
-            computerMove();
             //Update score
             score = grid.score;
             checkWin();
@@ -198,9 +199,26 @@ public class GameLogic {
         mGameScreen.resyncTime();
     }
 
-    public void computerMove(){
-        addRandomTile();
-        this.grid.playerTurn = true;
+    public synchronized void computerMove(){
+        final GameLogic self = this;
+        while (true){
+            while (this.grid.playerTurn){
+                try {
+                    wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            };
+
+            addRandomTile();
+            try {
+                Thread.sleep(GameScreen.BASE_ANIMATION_TIME);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            self.grid.playerTurn = true;
+            notify();
+        }
 
     }
 
@@ -229,12 +247,22 @@ public class GameLogic {
         animationGrid.startAnimation(-1, -1, AnimationType.FADE_GLOBAL, NOTIFICATION_ANIMATION_TIME, NOTIFICATION_DELAY_TIME, null);
     }
 
-    public void autoPlay() {
+    public synchronized void autoPlay() {
             GameAI gameAI = new GameAI(this.grid);
             while (true){
+
                 SearchResult best = gameAI.getBest();
                 System.out.printf("Eval : %f \n", gameAI.eval());
+
+                while (!grid.playerTurn){
+                    try {
+                        wait();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
                 this.move(best.getMove());
+                notify();
             }
 
     }
