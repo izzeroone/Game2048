@@ -24,7 +24,6 @@ public class GameLogic {
     private static final int STARTED_CELL = 2;
     private static final String HIGH_SCORE = "high score";
     //Maximum number of mive to make winning state
-    public static long timer = 0;
     public int numCellX = 4;
     public int numCellY = 4;
     private GameScreen mGameScreen;
@@ -37,10 +36,7 @@ public class GameLogic {
     public boolean canUndo;
     public long score = 0;
     public long lastScore = 0;
-    public float percent = 0;
     private long bufferScore;
-    private long startTime = 0;
-    public static int maxTime = 60000;
 
 
     public GameLogic() {
@@ -48,9 +44,6 @@ public class GameLogic {
 
     public GameLogic(GameScreen screen){
         mGameScreen = screen;
-        //avoid game over on the beginning
-        startTime = System.currentTimeMillis();
-        timer = 0;
     }
 
     public GameLogic(int numCellX, int numCellY, GameScreen mGameScreen) {
@@ -62,7 +55,6 @@ public class GameLogic {
     public void setSize(int numCellXX, int numCellYY, int time){
         numCellX = numCellXX;
         numCellY = numCellYY;
-        maxTime = time;
     }
 
     public void newGame(){
@@ -85,13 +77,9 @@ public class GameLogic {
         addStartTiles();
         //show the winGrid
         gameState = GameState.READY;
-        //reset time
-//        if (GameActivity.timerRunnable != null)
-//            GameActivity.timerRunnable.onPause();
         //cancel all animation and add spawn animation
         animationGrid.cancelAnimations();
         spawnGridAnimation();
-        percent = 0;
         mGameScreen.refreshLastTime = true;
         mGameScreen.resyncTime();
     }
@@ -105,11 +93,6 @@ public class GameLogic {
             canUndo = false;
             //reset score
             score = 0;
-            //reset time
-            timer = 0;
-            //starting counting time
-            startTime = System.currentTimeMillis();
-            percent = 0;
             //GameActivity.timerRunnable.onResume();
             //add spawn animation to all cell
             animationGrid.cancelAnimations();
@@ -125,21 +108,6 @@ public class GameLogic {
         }
     }
 
-    public void update() {
-        if(gameState != GameState.NORMAL)
-            return;
-
-        timer = System.currentTimeMillis() - startTime;
-        percent = 1.0f * timer / maxTime;
-        if (timer > maxTime) {
-            gameState = GameState.LOST;
-//            MediaPlayerManager.getInstance().pause();
-//            SoundPoolManager.getInstance().playSound(R.raw.you_lost);
-//            MediaPlayerManager.getInstance().resume();
-            endGame();
-        }
-
-    }
 
     private void addStartTiles(){
 
@@ -200,9 +168,7 @@ public class GameLogic {
 
     private void moveTile(Tile tile, Cell cell){
         //move tile to another cell
-        grid.field[tile.getX()][tile.getY()] = null;
-        grid.field[cell.getX()][cell.getY()] = tile;
-        tile.updatePosition(cell);
+        grid.moveTile(tile, cell);
     }
 
     private void prepareUndoState() {
@@ -417,10 +383,8 @@ public class GameLogic {
     public void autoPlay() {
         GameAI gameAI = new GameAI(this.grid);
             SearchResult best = gameAI.getBest();
+            System.out.printf("Direction : %s \n", gameAI.translate[best.getDirection()]);
             this.move(best.getDirection());
-//            this.move((int) Math.floor(Math.random() * 4));
-//            this.grid.printCurrentField();
-
     }
 
 

@@ -157,11 +157,6 @@ public class GameScreen extends AbstractScreen {
             refreshLastTime = false;
         }
 
-        if(game.percent <= 1) {
-            game.update();
-        }
-
-        //For now render cells only
     }
 
     @Override
@@ -346,7 +341,7 @@ public class GameScreen extends AbstractScreen {
             game.move(2);
         }
         if(Gdx.input.isKeyJustPressed(Input.Keys.DOWN)){
-            System.out.println("Move ");
+            System.out.println("Move down");
             game.move(0);
         }
         if(Gdx.input.isKeyJustPressed(Input.Keys.LEFT)){

@@ -45,7 +45,7 @@ class SearchResult{
     }
 }
 public class GameAI {
-    private static final int MIN_SEARCH_TIME = 100;
+    private static final int MIN_SEARCH_TIME = 5000;
     private Grid field;
     public GameAI() {
 
@@ -59,15 +59,11 @@ public class GameAI {
         int emptyCells = this.field.getAvailableCells().size();
 
         double smoothWeight = 0.1,
-                //monoWeight   = 0.0,
-                //islandWeight = 0.0,
                 mono2Weight  = 1.0,
                 emptyWeight  = 2.7,
                 maxWeight    = 1.0;
 
         return this.field.smoothness() * smoothWeight
-                //+ this.grid.monotonicity() * monoWeight
-                //- this.grid.islands() * islandWeight
                 + this.field.monotonicity() * mono2Weight
                 + Math.log(emptyCells) * emptyWeight
                 + this.field.maxValue() * maxWeight;
@@ -84,8 +80,6 @@ public class GameAI {
             Grid newGrid = this.field.clone();
             //Neu co di chuyen
             if (newGrid.move(direction)) {
-                System.out.println(translate[direction]);
-                newGrid.printCurrentField();
                 positions++;
                 if (newGrid.isWin()) {
                     result.setDirection(direction);
