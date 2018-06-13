@@ -38,6 +38,14 @@ public class GameLogic {
     public long lastScore = 0;
     private long bufferScore;
 
+    //auto play
+    private boolean autoPlay = false;
+    //auto play
+    Thread autoPlayThread;
+
+    //game input
+    Thread computerThread;
+
     public GameLogic() {
     }
 
@@ -52,7 +60,29 @@ public class GameLogic {
     }
 
 
-    public void newGame(){
+    public void newGame(final boolean autoPlay){
+        //Create auto play thread
+        this.autoPlay = autoPlay;
+        if (autoPlay) {
+            autoPlayThread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    while (true) {
+                        autoPlay();
+                    }
+                }
+            });
+        }
+
+        //Create computer play thread
+        computerThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (true) {
+                    computerMove();
+                }
+            }
+        });
         if(grid == null){
             //create new gird
             grid = new Grid(numCellX, numCellY);
@@ -97,6 +127,11 @@ public class GameLogic {
             //play sound
             //refresh view
             grid.playerTurn = true;
+            //Start the auto thread and computer thread
+            if (this.autoPlay) {
+                autoPlayThread.start();
+            }
+            computerThread.start();
             mGameScreen.refreshLastTime = true;
             mGameScreen.resyncTime();
 
@@ -168,7 +203,7 @@ public class GameLogic {
     }
 
     //moving to direction all cell
-    public void move(int direction){
+    public synchronized void move(int direction){
 
 //        SoundPoolManager.getInstance().playSound(R.raw.step);
         //cancel all animation
@@ -193,16 +228,17 @@ public class GameLogic {
             //Update score
             score = grid.score;
             checkWin();
-            checkLose();
+            notify();
         }
 
+        checkLose();
         mGameScreen.resyncTime();
     }
 
     public synchronized void computerMove(){
         final GameLogic self = this;
         while (true){
-            while (this.grid.playerTurn){
+            while (this.grid.playerTurn || !isActive()){
                 try {
                     wait();
                 } catch (InterruptedException e) {
@@ -223,22 +259,19 @@ public class GameLogic {
     }
 
     private void checkLose() {
-        if(false){
+        if(!grid.movesAvailable()){
             gameState = GameState.LOST;
             endGame();
         }
     }
 
     private  void checkWin(){
-        if(isWin()){
+        if(grid.isWin()){
             gameState = GameState.WIN;
             endGame();
         }
     }
 
-    private boolean isWin() {
-        return false;
-    }
 
 
 
@@ -254,7 +287,7 @@ public class GameLogic {
                 SearchResult best = gameAI.getBest();
                 System.out.printf("Eval : %f \n", gameAI.eval());
 
-                while (!grid.playerTurn){
+                while (!grid.playerTurn || !isActive()){
                     try {
                         wait();
                     } catch (InterruptedException e) {
@@ -266,6 +299,8 @@ public class GameLogic {
             }
 
     }
+
+
 
 
 

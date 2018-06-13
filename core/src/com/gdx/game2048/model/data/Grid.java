@@ -118,6 +118,41 @@ public class Grid {
         return new Cell[]{previous, nextCell};
     }
 
+    public boolean movesAvailable() {
+        if(isCellsAvailable()){
+            System.out.println("Cell avaiable");
+        }
+        if (tileMatchesAvailable()) {
+            System.out.println("Tile match avaiable");
+        }
+        return this.isCellsAvailable() || this.tileMatchesAvailable();
+    }
+
+    private boolean tileMatchesAvailable() {
+        Tile tile;
+
+        for (int xx = 0; xx < this.field.length; xx++) {
+            for (int yy = 0; yy < this.field[0].length; yy++) {
+                tile = this.getCellContent(new Cell(xx, yy));
+
+                if (tile != null) {
+                    for (int direction = 0; direction < 4; direction++) {
+                        Cell vector = this.getMovingVector(direction);
+                        Cell cell = new Cell(xx + vector.getX(), yy + vector.getY());
+
+                        Tile other = this.getCellContent(cell);
+
+                        if (other != null && other.getValue() == tile.getValue()) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
     public boolean move(int direction) {
         return move(direction, null);
     }
