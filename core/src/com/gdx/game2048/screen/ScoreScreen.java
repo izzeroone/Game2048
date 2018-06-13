@@ -39,7 +39,6 @@ public class ScoreScreen extends AbstractScreen {
 
     private TextureAtlas gameAtlas;
 
-    private Button backButton;
     private Image imageLevel;
 
     private int iconPaddingSize;
@@ -84,7 +83,6 @@ public class ScoreScreen extends AbstractScreen {
         createButton();
 
         //Step 6: add to stage
-        this.addActor(backButton);
         this.addActor(imageLevel);
 
         for (TextButton line :
@@ -129,9 +127,6 @@ public class ScoreScreen extends AbstractScreen {
         float rootLine = height* 0.54f;
         float linePadding = height* 0.1f;
 
-        backButton.setPosition(screenMidX + buttonPaddingMidX - iconSize_Width/2 , rootLine, Align.center);
-        backButton.setSize(iconSize_Width, iconSize_Height);
-
         imageLevel.setSize(imageSize, imageSize);
         imageLevel.setPosition(width*0.5f , height*0.78f, Align.center);
 
@@ -148,61 +143,11 @@ public class ScoreScreen extends AbstractScreen {
         lastFPSTime = System.currentTimeMillis();
     }
 
-    private void nextLevel() {
-        if (curLevel != 6) {
-            curLevel++;
-        } else {
-            curLevel = 3;
-        }
-
-        lines.get("level").setText(levelInfo.get(curLevel).getKey());
-        imageLevel.setDrawable(gameSkin.getDrawable(levelInfo.get(curLevel).getValue()));
-    }
-
-    private void preLevel() {
-        if (curLevel != 3) {
-            curLevel--;
-        } else {
-            curLevel = 6;
-        }
-
-        lines.get("level").setText(levelInfo.get(curLevel).getKey());
-        imageLevel.setDrawable(gameSkin.getDrawable(levelInfo.get(curLevel).getValue()));
-    }
-
-    private void nextAI() {
-        if (curAI != 3) {
-            curAI++;
-        } else {
-            curAI = 1;
-        }
-
-        lines.get("ai").setText(aiInfo.get(curAI));
-    }
-
-    private void preAI() {
-        if (curAI != 1) {
-            curAI--;
-        } else {
-            curAI = 3;
-        }
-
-        lines.get("ai").setText(aiInfo.get(curAI));
-    }
-
     private void createButton() {
 
         //Step 4: create button
-        imageLevel = new Image(gameSkin.getDrawable("high_score"));
 
-        //Step 5: add event
-        backButton.addListener(new ClickListener(){
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                super.clicked(event, x, y);
-                nextLevel();
-            }
-        });
+        imageLevel = new Image(gameSkin.getDrawable("high_score"));
 
         fontParameter.size = Gdx.graphics.getWidth() / 11;
         fontParameter.color = Color.valueOf("#efb75d");
@@ -217,87 +162,13 @@ public class ScoreScreen extends AbstractScreen {
         selectedTextButtonStyle = new TextButton.TextButtonStyle();
         selectedTextButtonStyle.font = selectedTextFont;
 
-        lines.put("level", new TextButton(levelInfo.get(curLevel).getKey(), normalTextButtonStyle));
-        lines.put("startGame", new TextButton("Start Game", normalTextButtonStyle));
-        lines.put("ai", new TextButton(aiInfo.get(curAI), normalTextButtonStyle));
-        lines.put("startAI", new TextButton("Play With Help" , normalTextButtonStyle));
-        lines.put("music", new TextButton("Music: ", normalTextButtonStyle));
-        musicStateChange();
+//        lines.put("level", new TextButton(levelInfo.get(curLevel).getKey(), normalTextButtonStyle));
+//        lines.put("startGame", new TextButton("Start Game", normalTextButtonStyle));
+//        lines.put("ai", new TextButton(aiInfo.get(curAI), normalTextButtonStyle));
+//        lines.put("startAI", new TextButton("Play With Help" , normalTextButtonStyle));
+//        lines.put("music", new TextButton("Music: ", normalTextButtonStyle));
+        
 
-        lines.get("startGame").addListener(new ClickListener(){
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                super.clicked(event, x, y);
-                startGame();
-            }
-        });
-
-        lines.get("startAI").addListener(new ClickListener(){
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                super.clicked(event, x, y);
-                startAI();
-            }
-        });
-
-        lines.get("music").addListener(new ClickListener(){
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                super.clicked(event, x, y);
-                musicStateChange();
-            }
-        });
-
-        curSelectedState = 1;
-        changeSelectState();
-    }
-
-    private void musicStateChange() {
-        MusicManager.getInstance().mute(! MusicManager.getInstance().isMute());
-        lines.get("music").setText("Music: " + MusicManager.getInstance().getMuteAsText());
-    }
-
-    private void startAI() {
-        // dùng biến curAI để xét
-        ScreenManager.getInstance().showScreen(ScreenEnum.GAME, curLevel, curLevel, true);
-    }
-
-    private void startGame() {
-        // dùng biến curLevel để xét
-        ScreenManager.getInstance().showScreen(ScreenEnum.GAME, curLevel, curLevel, false);
-    }
-
-    private int curSelectedState;
-
-    private void UpLine() {
-        if (curSelectedState > 1) {
-            curSelectedState--;
-        }
-        else {
-            curSelectedState = lines.size();
-        }
-        changeSelectState();
-    }
-
-    private void DownLine() {
-        if (curSelectedState < lines.size()) {
-            curSelectedState++;
-        }
-        else {
-            curSelectedState = 1;
-        }
-        changeSelectState();
-    }
-
-    private void changeSelectState() {
-        for (int i = 0; i < lines.size(); i++) {
-            TextButton t = getByIndex(i);
-            t.setStyle(normalTextButtonStyle);
-
-            if (curSelectedState == i + 1) {
-                t.setStyle(selectedTextButtonStyle);
-            }
-        }
     }
 
     private void handleInput(){
@@ -305,37 +176,25 @@ public class ScoreScreen extends AbstractScreen {
 
         if(Gdx.input.isKeyJustPressed(Input.Keys.UP)){
             System.out.println("Move up");
-            UpLine();
+
 
         }
         if(Gdx.input.isKeyJustPressed(Input.Keys.DOWN)){
             System.out.println("Move down");
-            DownLine();
+
         }
         if(Gdx.input.isKeyJustPressed(Input.Keys.LEFT)){
             System.out.println("Move left");
-            if (curSelectedState == 1)
-                preLevel();
-            else if (curSelectedState == 3)
-                preAI();
+
         }
         if(Gdx.input.isKeyJustPressed(Input.Keys.RIGHT)){
             System.out.println("Move right");
-            if (curSelectedState == 1)
-                nextLevel();
-            else if (curSelectedState == 3)
-                nextAI();
+
         }
 
         if(Gdx.input.isKeyJustPressed(Input.Keys.ENTER) || Gdx.input.isKeyJustPressed(Input.Keys.SPACE)){
             System.out.println("Enter || Space");
-            if (curSelectedState == 2)
-                startGame();
-            else if (curSelectedState == 4)
-                startAI();
-            else if (curSelectedState == 5) {
-                musicStateChange();
-            }
+
         }
     }
 
