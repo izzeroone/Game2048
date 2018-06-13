@@ -48,10 +48,6 @@ public class GameLogic {
         this.mGameScreen = mGameScreen;
     }
 
-    public void setSize(int numCellXX, int numCellYY, int time){
-        numCellX = numCellXX;
-        numCellY = numCellYY;
-    }
 
     public void newGame(){
         if(grid == null){
@@ -106,7 +102,6 @@ public class GameLogic {
 
 
     private void addStartTiles(){
-
         for(int xx = 0; xx < STARTED_CELL; xx++){
             //make random cell emply
             addRandomTile();
@@ -116,28 +111,12 @@ public class GameLogic {
     private void addRandomTile(){
         if (grid.isCellsAvailable()) {
             Cell cell = grid.randomAvailableCell();
-            addTile(cell.getX(), cell.getY());
+            grid.addTile(cell.getX(), cell.getY());
+            animationGrid.startAnimation(cell.getX(), cell.getY(), AnimationType.SPAWN,
+                    SPAWN_ANIMATION_TIME, MOVE_ANIMATION_TIME, null);
         }
     }
 
-    private void addTile(int x, int y)
-    {
-        //ratio 0,7 for 1. 0,25 for 2, 0,05 for 3
-        //check whether the cell is null
-        if(grid.field[x][y] == null){
-            int value = Math.random() <= 0.7 ? 1 : Math.random() <= 0.83 ? 2 : 3;
-            Tile tile = new Tile(new Cell(x, y), value);
-            spawnTile(tile);
-        }
-    }
-
-    private void spawnTile(Tile tile){
-        //insert to grid
-        grid.insertTile(tile);
-        //add animation
-        animationGrid.startAnimation(tile.getX(), tile.getY(), AnimationType.SPAWN,
-                SPAWN_ANIMATION_TIME, MOVE_ANIMATION_TIME, null);
-    }
 
     private void spawnGridAnimation(){
         for (int xx = 0; xx < grid.field.length; xx++) {
@@ -202,6 +181,8 @@ public class GameLogic {
             //save Undostate and check for Win Lose
             saveUndoState();
             addRandomTile();
+            //Update score
+            score = grid.score;
             checkWin();
             checkLose();
         }

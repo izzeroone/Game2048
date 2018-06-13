@@ -64,10 +64,16 @@ public class Grid {
     }
 
     private Cell getMovingVector(int direction) {
+        //The grid is bottom less
+//        4
+//        3
+//        2
+//        1
+//        y / x 1  2  3  4
         Cell[] map = {
-                new Cell(0, -1), // up
+                new Cell(0, 1), // up
                 new Cell(1, 0),  // right
-                new Cell(0, 1),  // down
+                new Cell(0, -1),  // down
                 new Cell(-1, 0)  // left
         };
         return map[direction];
@@ -464,9 +470,11 @@ public class Grid {
 
     public void printCurrentField(){
         System.out.print("Currenf field : \n");
-        for (int x=0; x<this.field.length; x++) {
-            System.out.print("[");
-            for (int y=0; y<this.field[0].length; y++) {
+        for (int y= this.field[0].length - 1; y >= 0; y--)
+       {
+                System.out.print("[");
+           for (int x=0; x<this.field.length; x++)
+            {
                 if (this.isCellOccupied(new Cell(x, y))) {
                     System.out.print(this.getCellContent(x, y).getValue());
                 } else {

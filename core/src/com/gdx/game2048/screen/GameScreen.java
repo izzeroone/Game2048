@@ -51,13 +51,10 @@ public class GameScreen extends AbstractScreen {
     public Button homeButton;
     public Button restartButton;
     public Button backButton;
-    public Button startButton;
-    public boolean restartButtonEnabled = false;
     public int iconSize;
     public int iconPaddingSize;
 
     //Score
-    public Rectangle scoreRect = new Rectangle();
     public BitmapFont scoreFont;
     public String gameScore;
     public TextButton scoreDisplay;
@@ -132,7 +129,7 @@ public class GameScreen extends AbstractScreen {
         Gdx.input.setInputProcessor(this);
 
         //Playing music
-        mainTheme.play();
+//        mainTheme.play();
     }
 
     @Override
@@ -190,8 +187,7 @@ public class GameScreen extends AbstractScreen {
                 Tile currentTile = game.grid.getCellContent(xx, yy);
                 if (currentTile != null) {
                     //Get and represent the value of the tile
-                    int value = currentTile.getValue();
-                    int index = value;
+                    int index = currentTile.getValue();
 
                     //Check for any active animations
                     ArrayList<AnimationCell> aArray = game.animationGrid.getAnimationCell(xx, yy);
@@ -211,24 +207,18 @@ public class GameScreen extends AbstractScreen {
                         switch (aCell.getAnimationType()){
                             case MOVE:
                                 percentDone = aCell.getPercentageDone();
-                                int tempIndex = index;
-                                if (aArray.size() >= 2) {
-                                    tempIndex = tempIndex - 1;
-                                }
                                 int previousX = aCell.extras[0];
                                 int previousY = aCell.extras[1];
                                 int currentX = currentTile.getX();
                                 int currentY = currentTile.getY();
                                 int dX = (int) ((currentX - previousX) * (cellSize + cellPadding) * (percentDone - 1) * 1.0);
                                 int dY = (int) ((currentY - previousY) * (cellSize + cellPadding) * (percentDone - 1) * 1.0);
-                                //drawDrawable(bitmapCell[tempIndex], sX + dX, sY + dY, eX + dX, eY + dY);
                                 drawCell(sX + dX, sY + dY, eX + dX, eY + dY, index);
                                 break;
                             case SPAWN:
                                 percentDone = aCell.getPercentageDone();
                                 textScaleSize = (float) (percentDone);
                                 cellScaleSize = cellSize / 2 * (1 - textScaleSize);
-                                //drawDrawable(bitmapCell[index], sX + cellScaleSize, sY +cellScaleSize, eX - cellScaleSize, eY - cellScaleSize);
                                 drawCell(sX + cellScaleSize, sY + cellScaleSize, eX - cellScaleSize, eY - cellScaleSize, index);
                                 break;
                             case MERGE:
@@ -237,12 +227,9 @@ public class GameScreen extends AbstractScreen {
                                         + MERGING_ACCEL * percentDone * percentDone / 2);
 
                                 cellScaleSize = cellSize / 2 * (1 - textScaleSize);
-                                //drawDrawable(bitmapCell[index], sX + cellScaleSize, sY +cellScaleSize, eX - cellScaleSize, eY - cellScaleSize);
                                 drawCell(sX + cellScaleSize, sY +cellScaleSize, eX - cellScaleSize, eY - cellScaleSize, index);
                                 break;
                             case FADE_GLOBAL:
-                                //bitmapCell[index].setAlpha((int)(((aCell.getPercentageDone()) * 255) >= 255 ? 255 : (aCell.getPercentageDone()) * 255));
-                                //drawDrawable(bitmapCell[index], sX, sY, eX, eY);
                                 drawCell(sX, sY, eX, eY, index);
                                 break;
                         }
@@ -333,19 +320,25 @@ public class GameScreen extends AbstractScreen {
 
         if(Gdx.input.isKeyJustPressed(Input.Keys.UP)){
             System.out.println("Move up");
-            game.move(2);
+            game.move(0);
+            game.grid.printCurrentField();
         }
         if(Gdx.input.isKeyJustPressed(Input.Keys.DOWN)){
             System.out.println("Move down");
-            game.move(0);
+            game.move(2);
+            game.grid.printCurrentField();
         }
         if(Gdx.input.isKeyJustPressed(Input.Keys.LEFT)){
             System.out.println("Move left");
             game.move(3);
+            game.grid.printCurrentField();
         }
         if(Gdx.input.isKeyJustPressed(Input.Keys.RIGHT)){
             System.out.println("Move right");
             game.move(1);
+            game.grid.printCurrentField();
         }
+
+
     }
 }

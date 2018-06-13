@@ -26,22 +26,9 @@ import java.util.LinkedHashMap;
 
 
 public class MenuView extends ApplicationAdapter {
-    //Game logic
 
     //Tag for debug
     private static final String TAG = MenuView.class.getSimpleName();
-
-    //Animation constant
-    public static final int BASE_ANIMATION_TIME = 100;
-    private static final float MERGING_ACCEL = -0.5f;
-    private static final float INITIAL_VELO = (1 - MERGING_ACCEL) / 4;
-
-    //Cell render
-    public final int numCellTypes = 21;
-    public Rectangle gridRect = new Rectangle();
-    //Queue to draw cell text
-    private int cellSize;
-    private int cellPadding;
 
     //Step 1: create Skin, TextureAtlas, Button
     //Button
@@ -81,18 +68,6 @@ public class MenuView extends ApplicationAdapter {
 
     LinkedHashMap<Integer, String> aiInfo;
     int curAI = 1;
-
-
-    public int textPaddingSize;
-    public int instructionTextSize;
-    public int subInstructionTextSize;
-    public int sYInstruction;
-    public int sYSubInstruction;
-
-
-    //Timing for draw
-    private long lastFPSTime = System.currentTimeMillis();
-    public boolean refreshLastTime = false;
 
     //Music
     public Music mainTheme;
@@ -211,9 +186,6 @@ public class MenuView extends ApplicationAdapter {
 
     }
 
-    public void resyncTime() {
-        lastFPSTime = System.currentTimeMillis();
-    }
 
     private void nextLevel() {
         if (curLevel != 6) {
