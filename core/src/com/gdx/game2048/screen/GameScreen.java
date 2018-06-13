@@ -72,8 +72,12 @@ public class GameScreen extends AbstractScreen {
     //Batch for drawing;
     private SpriteBatch batch;
 
-    //Threading
+    //auto play
     Thread autoPlay;
+
+    //game input
+    Thread gameMoveThread;
+    int inputDirection = -1;
 
     public GameScreen() {
         game = new GameLogic(this);
