@@ -278,6 +278,11 @@ public class GameLogic {
     private void endGame() {
         //GameActivity.timerRunnable.onPause();
         animationGrid.startAnimation(-1, -1, AnimationType.FADE_GLOBAL, NOTIFICATION_ANIMATION_TIME, NOTIFICATION_DELAY_TIME, null);
+        //Stop auto thread and computer thread
+        if(autoPlay){
+            autoPlayThread.interrupt();
+        }
+        computerThread.interrupt();
     }
 
     public synchronized void autoPlay() {

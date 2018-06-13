@@ -79,7 +79,6 @@ public class GameScreen extends AbstractScreen {
     private SpriteBatch batch;
 
 
-
     //dialog system
     GDXDialogs dialogs = GDXDialogsSystem.install();
     boolean isDialogShow = false;
@@ -112,7 +111,6 @@ public class GameScreen extends AbstractScreen {
         fontParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         gameAtlas = new TextureAtlas("themes/default.atlas");
         gameSkin = new Skin(gameAtlas);
-
 
         //add view to object manager
         createButton();

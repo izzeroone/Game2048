@@ -498,7 +498,7 @@ public class Grid {
         for (int x=0; x<this.field.length; x++) {
             for (int y=0; y<this.field[0].length; y++) {
                 if (this.isCellOccupied(new Cell(x, y))) {
-                    if (this.getCellContent(x, y).getValue() == 10) {
+                    if (this.getCellContent(x, y).getValue() == 11) {
                         return true;
                     }
                 }
