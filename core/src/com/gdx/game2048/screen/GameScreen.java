@@ -109,7 +109,7 @@ public class GameScreen extends AbstractScreen {
         mainTheme = Gdx.audio.newMusic(Gdx.files.internal("music/maintheme.mp3"));
         fontGenerator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/ClearSans-Bold.ttf"));
         fontParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-        gameAtlas = new TextureAtlas("themes/default.atlas");
+        gameAtlas = new TextureAtlas("themes/circle.atlas");
         gameSkin = new Skin(gameAtlas);
 
         //add view to object manager
@@ -442,5 +442,11 @@ public class GameScreen extends AbstractScreen {
                 break;
         }
 
+    }
+
+    public void changeTheme(String themeName){
+        gameAtlas = new TextureAtlas(String.format("themes/%s.atlas", themeName));
+        gameSkin = new Skin(gameAtlas);
+        createButton();
     }
 }
