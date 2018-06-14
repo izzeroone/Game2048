@@ -17,6 +17,11 @@ public enum ScreenEnum {
             return new SettingScreen();
         }
     },
+    ABOUT {
+        public AbstractScreen getScreen(Object... params) {
+            return new AboutScreen();
+        }
+    },
     GAME{
         @Override
         public AbstractScreen getScreen(Object... params) {

@@ -190,6 +190,14 @@ public class SettingScreen extends AbstractScreen {
             }
         });
 
+        lines.get("about").addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                super.clicked(event, x, y);
+                startAbout();
+            }
+        });
+
         lines.get("back").addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -200,6 +208,10 @@ public class SettingScreen extends AbstractScreen {
 
         curSelectedState = 2;
         changeSelectState();
+    }
+
+    private void startAbout() {
+        ScreenManager.getInstance().showScreen(ScreenEnum.ABOUT);
     }
 
     private void startMain() {
@@ -236,10 +248,6 @@ public class SettingScreen extends AbstractScreen {
 
         MusicManager.getInstance().muteSound(! MusicManager.getInstance().isMuteSound());
         lines.get("sound").setText("Sound: " + MusicManager.getInstance().getMuteSoundAsText());
-    }
-
-    private void about() {
-
     }
 
     private int curSelectedState;
@@ -325,7 +333,7 @@ public class SettingScreen extends AbstractScreen {
             else if (curSelectedState == 5)
                 cheatingChange();
             else if (curSelectedState == 6)
-                about();
+                startAbout();
             else
                 startMain();
         }
