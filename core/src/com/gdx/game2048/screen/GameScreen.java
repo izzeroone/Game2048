@@ -136,6 +136,7 @@ public class GameScreen extends AbstractScreen {
         batch.begin();
         //Draw cell shape
         drawScore();
+        drawBackGround();
         drawCells();
         batch.end();
         //Refresh the screen if there is still an animation running
@@ -151,12 +152,17 @@ public class GameScreen extends AbstractScreen {
 
     }
 
+
+
     @Override
     public void resize(int width, int height) {
         super.resize(width, height);
         this.makeLayout(width, height);
     }
 
+    private void drawBackGround() {
+        gameSkin.getPatch("ninepatch").draw(batch, gridRect.x, gridRect.y, gridRect.width, gridRect.height);
+    }
 
     private void drawScore() {
         gameScore = String.valueOf(game.score);
@@ -268,17 +274,17 @@ public class GameScreen extends AbstractScreen {
 
         gridRect.x = (int) (screenMidX - (cellSize + cellPadding) * halfNumSquaresX - cellPadding / 2);
         gridRect.width = (int) (screenMidX + (cellSize + cellPadding) * halfNumSquaresX + cellPadding / 2 - gridRect.x);
-        gridRect.y = (int) (boardMidY - (cellSize + cellPadding) * halfNumSquaresY - cellPadding / 2);
-        gridRect.height = (int) (boardMidY + (cellSize + cellPadding) * halfNumSquaresY + cellPadding / 2 - gridRect.y);
+        gridRect.y = (int) (boardMidY - (cellSize + cellPadding) * halfNumSquaresY - cellPadding);
+        gridRect.height = (int) (boardMidY + (cellSize + cellPadding) * halfNumSquaresY - gridRect.y);
 
 
-        backButton.setPosition(screenMidX - iconSize * 3 / 2 - iconPaddingSize, height - iconPaddingSize, Align.left);
+        backButton.setPosition(screenMidX - iconSize * 3 / 2 - iconPaddingSize, height - iconPaddingSize / 2, Align.left);
         backButton.setSize(iconSize, iconSize);
 
-        homeButton.setPosition(screenMidX - iconSize / 2, height - iconPaddingSize, Align.left);
+        homeButton.setPosition(screenMidX - iconSize / 2, height - iconPaddingSize / 2, Align.left);
         homeButton.setSize(iconSize, iconSize);
 
-        restartButton.setPosition(screenMidX + iconSize / 2 + iconPaddingSize, height - iconPaddingSize, Align.left);
+        restartButton.setPosition(screenMidX + iconSize / 2 + iconPaddingSize, height - iconPaddingSize / 2, Align.left);
         restartButton.setSize(iconSize, iconSize);
 
 
