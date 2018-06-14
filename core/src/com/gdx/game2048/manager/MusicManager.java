@@ -10,10 +10,8 @@ public class MusicManager {
     private static MusicManager instance;
     private HashMap<String, Music> listMusic = new HashMap<>();
 
-
     private boolean muteMusic;
     private boolean muteSound;
-
 
     private static String muteAsText;
     private HashMap<String, Sound> listSound = new HashMap<>();
