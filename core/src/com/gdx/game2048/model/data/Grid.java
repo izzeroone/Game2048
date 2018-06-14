@@ -1,5 +1,6 @@
 package com.gdx.game2048.model.data;
 
+import com.gdx.game2048.manager.GameSetting;
 import com.gdx.game2048.model.animation.AnimationGrid;
 import com.gdx.game2048.model.animation.AnimationType;
 
@@ -34,7 +35,11 @@ public class Grid {
         //ratio 0,8 for 1 and 0,2 for 2
         //check whether the cell is null
         if (field[x][y] == null) {
-            int value = Math.random() <= 0.9 ? 1 : 2;
+            int value = 1;
+            if (GameSetting.getInstance().getCheating())
+                value = Math.random() <= 0.9 ? 7 : 8;
+            else
+                value = Math.random() <= 0.9 ? 1 : 2;
             Tile tile = new Tile(new Cell(x, y), value);
             spawnTile(tile);
         }

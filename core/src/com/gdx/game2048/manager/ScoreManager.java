@@ -10,7 +10,7 @@ public class ScoreManager {
     private static ScoreManager instance;
     Preferences prefs;
 
-    private LinkedList<Pair<String, Integer>> listScore = new LinkedList<>();
+    private LinkedList<MyEntry<String,Integer>> listScore = new LinkedList<>();
     private Integer highestScore;
 
     public Integer getHighestScore() {
@@ -32,7 +32,7 @@ public class ScoreManager {
             String date = prefs.getString("date" + String.valueOf(i), null);
             int score = prefs.getInteger("score" + String.valueOf(i), 0);
             if (date != null) {
-                listScore.add(new Pair<>(date, score));
+                listScore.add(new MyEntry<String,Integer>(date, score));
             }
         }
 
@@ -49,7 +49,7 @@ public class ScoreManager {
 
     public void addNewScore(int score) {
         // check highest score
-        for (Pair<String, Integer> pair: listScore) {
+        for (MyEntry<String,Integer> pair: listScore) {
             if (pair.getValue() > highestScore) {
                 highestScore = pair.getValue();
             }
@@ -64,7 +64,7 @@ public class ScoreManager {
         prefs.putString("date" + 0, TimeUtils.getCurrentTimeAsUserDateTimeStr());
 
         int i = 1;
-        for (Pair<String,Integer> pair : listScore) {
+        for (MyEntry<String,Integer> pair : listScore) {
             prefs.putInteger("score" + i, pair.getValue());
             prefs.putString("date" + i, pair.getKey());
             i++;
@@ -76,7 +76,7 @@ public class ScoreManager {
         loadList();
     }
 
-    public LinkedList<Pair<String, Integer>> getListScore() {
+    public LinkedList<MyEntry<String,Integer>> getListScore() {
         return listScore;
     }
 }

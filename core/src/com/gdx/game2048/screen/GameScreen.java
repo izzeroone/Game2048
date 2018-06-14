@@ -1,9 +1,7 @@
 package com.gdx.game2048.screen;
 
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -11,15 +9,15 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.gdx.game2048.logic.GameLogic;
 import com.gdx.game2048.manager.GameSetting;
+import com.gdx.game2048.manager.MusicManager;
+import com.gdx.game2048.manager.ScoreManager;
 import com.gdx.game2048.manager.ScreenManager;
 import com.gdx.game2048.model.animation.AnimationCell;
 import com.gdx.game2048.model.animation.AnimationType;
@@ -74,9 +72,6 @@ public class GameScreen extends AbstractScreen {
     private long lastFPSTime = System.currentTimeMillis();
     public boolean refreshLastTime = false;
 
-    //Music
-    public Music mainTheme;
-
     //Batch for drawing;
     private SpriteBatch batch;
 
@@ -108,7 +103,6 @@ public class GameScreen extends AbstractScreen {
         game.gameStart();
 
         //Loading asset
-        mainTheme = Gdx.audio.newMusic(Gdx.files.internal("music/maintheme.mp3"));
         fontGenerator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/ClearSans-Bold.ttf"));
         fontParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         if (GameSetting.getInstance().getTileStyle())
@@ -130,7 +124,7 @@ public class GameScreen extends AbstractScreen {
         Gdx.input.setInputProcessor(this);
 
         //Playing music
-//        mainTheme.play();
+        MusicManager.getInstance().playMusic("game_background");
     }
 
     @Override
@@ -152,10 +146,6 @@ public class GameScreen extends AbstractScreen {
         } else if (!game.isActive() && refreshLastTime) {
             refreshLastTime = false;
         }
-
-
-
-
     }
 
 
@@ -205,7 +195,12 @@ public class GameScreen extends AbstractScreen {
                     ArrayList<AnimationCell> aArray = game.animationGrid.getAnimationCell(xx, yy);
                     boolean animated = false;
                     for (int i = aArray.size() - 1; i >= 0; i--) {
-                        AnimationCell aCell = aArray.get(i);
+                        AnimationCell aCell;
+                        try {
+                            aCell = aArray.get(i);
+                        } catch (IndexOutOfBoundsException e) {
+                            return;
+                        }
                         //If this animation is not active, skip it
                         if (aCell.getAnimationType() == AnimationType.SPAWN) {
                             animated = true;
@@ -313,6 +308,8 @@ public class GameScreen extends AbstractScreen {
                 if(isDialogShow){
                     return;
                 }
+                MusicManager.getInstance().playSound("menu_change");
+
                 GDXButtonDialog bDialog = dialogs.newDialog(GDXButtonDialog.class);
                 bDialog.setTitle("Go home");
                 bDialog.setMessage("Wanna go home?");
@@ -321,8 +318,9 @@ public class GameScreen extends AbstractScreen {
                     public void click(int button) {
                         switch (button){
                             case 0:
+                                GameScreen.this.game.endGame();
                                 ScreenManager.getInstance().showScreen(ScreenEnum.MAIN_MENU);
-
+                                break;
                         }
                         isDialogShow = false;
                     }
@@ -339,6 +337,8 @@ public class GameScreen extends AbstractScreen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 super.clicked(event, x, y);
+                MusicManager.getInstance().playSound("menu_change");
+
                 if(isDialogShow){
                     return;
                 }
@@ -368,6 +368,7 @@ public class GameScreen extends AbstractScreen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 super.clicked(event, x, y);
+                MusicManager.getInstance().playSound("menu_change");
                 game.revertUndoState();
             }
         });
@@ -415,6 +416,8 @@ public class GameScreen extends AbstractScreen {
         switch (game.gameState) {
             case WIN:
                 //todo: music
+                MusicManager.getInstance().playSound("win");
+                ScoreManager.getInstance().addNewScore(Integer.parseInt(gameScore));
 
                 bDialog.setTitle("You win");
                 bDialog.setMessage("Do you want to restart?");
@@ -429,30 +432,39 @@ public class GameScreen extends AbstractScreen {
                             case 1:
                                 ScreenManager.getInstance().showScreen(ScreenEnum.MAIN_MENU);
                                 break;
-
                         }
                         isDialogShow = false;
                     }
                 });
 
                 bDialog.addButton("Yes");
-                bDialog.addButton("Take me home");
+                bDialog.addButton("No, Take me home!");
                 bDialog.build().show();
                 isDialogShow = true;
                 break;
             case LOST:
+                MusicManager.getInstance().playSound("lose");
+                ScoreManager.getInstance().addNewScore(Integer.parseInt(gameScore));
+
                 bDialog.setTitle("You lost");
                 bDialog.setMessage("Try again?");
                 bDialog.setClickListener(new ButtonClickListener() {
                     @Override
                     public void click(int button) {
-                        game.newGame(autoPlay);
-                        game.gameStart();
+                        switch (button){
+                            case 0:
+                                game.newGame(autoPlay);
+                                game.gameStart();
+                                break;
+                            case 1:
+                                ScreenManager.getInstance().showScreen(ScreenEnum.MAIN_MENU);
+                                break;
+                        }
+                        isDialogShow = false;
                     }
                 });
                 bDialog.addButton("Yes");
-                bDialog.addButton("Why not!");
-                bDialog.addButton("Yes, nomnom!");
+                bDialog.addButton("No, Take me home!");
                 bDialog.build().show();
                 isDialogShow = true;
                 break;
@@ -465,4 +477,5 @@ public class GameScreen extends AbstractScreen {
         gameSkin = new Skin(gameAtlas);
         createButton();
     }
+
 }

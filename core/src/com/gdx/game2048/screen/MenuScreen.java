@@ -1,6 +1,5 @@
 package com.gdx.game2048.screen;
 
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.audio.Music;
@@ -110,6 +109,8 @@ public class MenuScreen extends AbstractScreen {
         }
 
         Gdx.input.setInputProcessor(this);
+
+        MusicManager.getInstance().playMusic("menu_background");
     }
 
     @Override
@@ -139,7 +140,7 @@ public class MenuScreen extends AbstractScreen {
         int iconSize_Width = 40;
         int iconSize_Height = 40;
         iconPaddingSize = 50;
-        float imageSize = 240;
+        float imageSize = width/2f;
 
         // Step 7 : set position
         float buttonPaddingMidX = width/4.5f;
@@ -177,6 +178,7 @@ public class MenuScreen extends AbstractScreen {
             curLevel = 3;
         }
 
+        MusicManager.getInstance().playSound("change");
         lines.get("level").setText(levelInfo.get(curLevel));
         imageLevel.setDrawable(gameSkin.getDrawable(levelInfo.get(curLevel)));
     }
@@ -188,6 +190,7 @@ public class MenuScreen extends AbstractScreen {
             curLevel = 6;
         }
 
+        MusicManager.getInstance().playSound("change");
         lines.get("level").setText(levelInfo.get(curLevel));
         imageLevel.setDrawable(gameSkin.getDrawable(levelInfo.get(curLevel)));
     }
@@ -199,6 +202,7 @@ public class MenuScreen extends AbstractScreen {
             curAI = 1;
         }
 
+        MusicManager.getInstance().playSound("change");
         lines.get("ai").setText(aiInfo.get(curAI));
     }
 
@@ -209,6 +213,7 @@ public class MenuScreen extends AbstractScreen {
             curAI = aiInfo.size();
         }
 
+        MusicManager.getInstance().playSound("change");
         lines.get("ai").setText(aiInfo.get(curAI));
     }
 
@@ -272,7 +277,6 @@ public class MenuScreen extends AbstractScreen {
         lines.put("highScore", new TextButton("High Score", normalTextButtonStyle));
         lines.put("setting", new TextButton("Setting", normalTextButtonStyle));
 
-
         lines.get("startGame").addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -297,7 +301,7 @@ public class MenuScreen extends AbstractScreen {
             }
         });
 
-        lines.get("highScore").addListener(new ClickListener(){
+        lines.get("setting").addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 super.clicked(event, x, y);
@@ -365,11 +369,12 @@ public class MenuScreen extends AbstractScreen {
 
         if(Gdx.input.isKeyJustPressed(Input.Keys.UP)){
             System.out.println("Move up");
+            MusicManager.getInstance().playSound("menu_change");
             UpLine();
-
         }
         if(Gdx.input.isKeyJustPressed(Input.Keys.DOWN)){
             System.out.println("Move down");
+            MusicManager.getInstance().playSound("menu_change");
             DownLine();
         }
         if(Gdx.input.isKeyJustPressed(Input.Keys.LEFT)){
@@ -397,6 +402,7 @@ public class MenuScreen extends AbstractScreen {
                 startScore();
             else if (curSelectedState == 6)
                 startSetting();
+
         }
     }
 

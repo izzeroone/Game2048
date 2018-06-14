@@ -4,6 +4,7 @@ package com.gdx.game2048.logic;
 
 
 import com.badlogic.gdx.Game;
+import com.gdx.game2048.manager.MusicManager;
 import com.gdx.game2048.model.animation.AnimationCell;
 import com.gdx.game2048.model.data.Tile;
 import com.gdx.game2048.model.animation.AnimationGrid;
@@ -60,15 +61,23 @@ public class GameLogic {
     }
 
 
+
     public void newGame(final boolean autoPlay){
         //Create auto play thread
         this.autoPlay = autoPlay;
         if (autoPlay) {
+
             autoPlayThread = new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    while (true) {
-                        autoPlay();
+
+                    try {
+                        while (!autoPlayThread.interrupted()) {
+                            autoPlay();
+                        }
+                    } catch (InterruptedException e) {
+                        autoPlayThread = null;
+                        System.out.println("InterruptedException");
                     }
                 }
             });
@@ -76,13 +85,18 @@ public class GameLogic {
 
         //Create computer play thread
         computerThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (true) {
+        @Override
+        public void run() {
+            try {
+                while (!computerThread.interrupted()) {
                     computerMove();
                 }
+            } catch (InterruptedException e) {
+                computerThread = null;
+                System.out.println("InterruptedException");
             }
-        });
+        }});
+
         if(grid == null){
             //create new gird
             grid = new Grid(numCellX, numCellY);
@@ -222,6 +236,7 @@ public class GameLogic {
 
         if(moved){
             //todo: music
+            MusicManager.getInstance().playSound("merge_tile");
             //some cell has moved
             //save Undostate and check for Win Lose
             grid.playerTurn = false;
@@ -236,27 +251,18 @@ public class GameLogic {
         mGameScreen.resyncTime();
     }
 
-    public synchronized void computerMove(){
+    public synchronized void computerMove() throws InterruptedException {
         final GameLogic self = this;
-        while (true){
-            while (this.grid.playerTurn || !isActive()){
-                try {
-                    wait();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+        while (!computerThread.isInterrupted()){
+            while (this.grid.playerTurn || !isActive() && !computerThread.isInterrupted()){
+                wait();
             };
-
             addRandomTile();
-            try {
-                Thread.sleep(GameScreen.BASE_ANIMATION_TIME);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            Thread.sleep(GameScreen.BASE_ANIMATION_TIME);
+
             self.grid.playerTurn = true;
             notify();
         }
-
     }
 
     private void checkLose() {
@@ -276,39 +282,38 @@ public class GameLogic {
 
 
 
-    private void endGame() {
+    public void endGame() {
         //GameActivity.timerRunnable.onPause();
         animationGrid.startAnimation(-1, -1, AnimationType.FADE_GLOBAL, NOTIFICATION_ANIMATION_TIME, NOTIFICATION_DELAY_TIME, null);
         //Stop auto thread and computer thread
         if(autoPlay){
-            autoPlayThread.interrupt();
+            if (autoPlayThread.isAlive())
+                autoPlayThread.interrupt();
         }
+        if (computerThread.isAlive())
+            computerThread.interrupt();
+    }
+
+    public synchronized void autoPlay() throws InterruptedException {
+        GameAI gameAI = new GameAI(this.grid);
+        while (!autoPlayThread.isInterrupted()){
+            SearchResult best = gameAI.getBest();
+            System.out.printf("Eval : %f \n", gameAI.eval());
+            while (!grid.playerTurn || !isActive() && !autoPlayThread.isInterrupted()){
+                synchronized (this) {
+                    this.wait();
+                }
+            }
+            this.move(best.getMove());
+            notify();
+        }
+
+
+    }
+
+    public void stopThread() {
+        endGame();
+        autoPlayThread.interrupt();
         computerThread.interrupt();
     }
-
-    public synchronized void autoPlay() {
-            GameAI gameAI = new GameAI(this.grid);
-            while (true){
-
-                SearchResult best = gameAI.getBest();
-                System.out.printf("Eval : %f \n", gameAI.eval());
-
-                while (!grid.playerTurn || !isActive()){
-                    try {
-                        wait();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-                this.move(best.getMove());
-                notify();
-            }
-
-    }
-
-
-
-
-
-
 }

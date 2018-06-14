@@ -33,6 +33,7 @@ public class ScreenManager {
 
     // Show in the game the screen which enum type is received
     public void showScreen(ScreenEnum screenEnum, Object... params) {
+        MusicManager.getInstance().playSound("menu_select");
 
         // Get current screen to dispose it
         Screen currentScreen = game.getScreen();

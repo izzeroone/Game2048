@@ -39,7 +39,8 @@ public class GameSetting {
     public void changeSetting() {
         prefs.putBoolean("tileStyle", tileStyle);
         prefs.putBoolean("cheating", cheating);
-        prefs.putBoolean("muteMusic", MusicManager.getInstance().isMute());
+        prefs.putBoolean("muteMusic", MusicManager.getInstance().isMuteMusic());
+        prefs.putBoolean("muteSound", MusicManager.getInstance().isMuteSound());
 
         prefs.flush();
     }
@@ -72,7 +73,11 @@ public class GameSetting {
         changeSetting();
     }
 
-    public boolean getMusicMute() {
+    public boolean getMuteMusic() {
         return prefs.getBoolean("muteMusic", false);
     }
+    public boolean getMuteSound() {
+        return prefs.getBoolean("muteSound", false);
+    }
+
 }

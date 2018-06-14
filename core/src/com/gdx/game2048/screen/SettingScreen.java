@@ -128,7 +128,7 @@ public class SettingScreen extends AbstractScreen {
 
     private void createButton() {
 
-        fontParameter.size = Gdx.graphics.getWidth() / 11;
+        fontParameter.size = Gdx.graphics.getWidth() / 13;
         fontParameter.color = Color.valueOf("#efb75d");
         normalTextFont = fontGenerator.generateFont(fontParameter);
 
@@ -151,7 +151,8 @@ public class SettingScreen extends AbstractScreen {
 
         lines.put("setting", new TextButton("Game Setting", titleTextButtonStyle));
 
-        lines.put("music", new TextButton("Music: " + MusicManager.getInstance().getMuteAsText(), normalTextButtonStyle));
+        lines.put("music", new TextButton("Background Music: " + MusicManager.getInstance().getMuteMusicAsText(), normalTextButtonStyle));
+        lines.put("sound", new TextButton("Sound: " + MusicManager.getInstance().getMuteSoundAsText(), normalTextButtonStyle));
         lines.put("tileStyle", new TextButton("Tile Style: " + GameSetting.getInstance().getTileStyleAsText(), normalTextButtonStyle));
         lines.put("cheating", new TextButton("Cheating: " + GameSetting.getInstance().getCheatingAsText(), normalTextButtonStyle));
         lines.put("about", new TextButton("About us", normalTextButtonStyle));
@@ -162,6 +163,14 @@ public class SettingScreen extends AbstractScreen {
             public void clicked(InputEvent event, float x, float y) {
                 super.clicked(event, x, y);
                 musicStateChange();
+            }
+        });
+
+        lines.get("sound").addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                super.clicked(event, x, y);
+                soundStateChange();
             }
         });
 
@@ -198,18 +207,35 @@ public class SettingScreen extends AbstractScreen {
     }
 
     private void cheatingChange() {
+        MusicManager.getInstance().playSound("change");
+
         GameSetting.getInstance().setCheating(! GameSetting.getInstance().getCheating());
         lines.get("cheating").setText("Cheating: " + GameSetting.getInstance().getCheatingAsText());
     }
 
     private void tileStyleChange() {
+        MusicManager.getInstance().playSound("change");
+
         GameSetting.getInstance().setTileStyle(! GameSetting.getInstance().getTileStyle());
         lines.get("tileStyle").setText("Tile Style: " + GameSetting.getInstance().getTileStyleAsText());
     }
 
     private void musicStateChange() {
-        MusicManager.getInstance().mute(! MusicManager.getInstance().isMute());
-        lines.get("music").setText("Music: " + MusicManager.getInstance().getMuteAsText());
+        MusicManager.getInstance().playSound("change");
+
+        MusicManager.getInstance().muteMusic(! MusicManager.getInstance().isMuteMusic());
+        lines.get("music").setText("Background Music: " + MusicManager.getInstance().getMuteMusicAsText());
+
+        if (!MusicManager.getInstance().isMuteMusic()) {
+            MusicManager.getInstance().playMusic("menu_background");
+        }
+    }
+
+    private void soundStateChange() {
+        MusicManager.getInstance().playSound("change");
+
+        MusicManager.getInstance().muteSound(! MusicManager.getInstance().isMuteSound());
+        lines.get("sound").setText("Sound: " + MusicManager.getInstance().getMuteSoundAsText());
     }
 
     private void about() {
@@ -254,11 +280,13 @@ public class SettingScreen extends AbstractScreen {
 
         if(Gdx.input.isKeyJustPressed(Input.Keys.UP)){
             System.out.println("Move up");
+            MusicManager.getInstance().playSound("menu_change");
             UpLine();
 
         }
         if(Gdx.input.isKeyJustPressed(Input.Keys.DOWN)){
             System.out.println("Move down");
+            MusicManager.getInstance().playSound("menu_change");
             DownLine();
         }
         if(Gdx.input.isKeyJustPressed(Input.Keys.LEFT)){
@@ -266,8 +294,10 @@ public class SettingScreen extends AbstractScreen {
             if (curSelectedState == 2)
                 musicStateChange();
             else if (curSelectedState == 3)
-                tileStyleChange();
+                soundStateChange();
             else if (curSelectedState == 4)
+                tileStyleChange();
+            else if (curSelectedState == 5)
                 cheatingChange();
 
         }
@@ -276,8 +306,10 @@ public class SettingScreen extends AbstractScreen {
             if (curSelectedState == 2)
                 musicStateChange();
             else if (curSelectedState == 3)
-                tileStyleChange();
+                soundStateChange();
             else if (curSelectedState == 4)
+                tileStyleChange();
+            else if (curSelectedState == 5)
                 cheatingChange();
 
         }
@@ -287,10 +319,12 @@ public class SettingScreen extends AbstractScreen {
             if (curSelectedState == 2)
                 musicStateChange();
             else if (curSelectedState == 3)
-                tileStyleChange();
+                soundStateChange();
             else if (curSelectedState == 4)
-                cheatingChange();
+                tileStyleChange();
             else if (curSelectedState == 5)
+                cheatingChange();
+            else if (curSelectedState == 6)
                 about();
             else
                 startMain();

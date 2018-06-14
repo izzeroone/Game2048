@@ -15,6 +15,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
+import com.gdx.game2048.manager.MyEntry;
 import com.gdx.game2048.manager.ScoreManager;
 import com.gdx.game2048.manager.ScreenManager;
 import javafx.util.Pair;
@@ -125,6 +126,9 @@ public class ScoreScreen extends AbstractScreen {
         float rootLine = height* 0.6f;
         float linePadding = height* 0.05f;
 
+        float imageSize = width/2f;
+
+        image.setSize(imageSize*2,imageSize);
         image.setPosition(width*0.5f , height*0.78f, Align.center);
 
         highestScore.setPosition(width*0.65f, height*0.74f, Align.center);
@@ -152,8 +156,8 @@ public class ScoreScreen extends AbstractScreen {
         fontParameter.size = Gdx.graphics.getWidth() / 18;
         scoreTextFont = normalFontGenerator.generateFont(fontParameter);
 
-        fontParameter.size = Gdx.graphics.getWidth() / 6;
-        fontParameter.color = Color.valueOf("#FFBD0B");
+        fontParameter.size = Gdx.graphics.getWidth() / 8;
+        fontParameter.color = Color.valueOf("#ffbd0b");
         fontParameter.borderColor = Color.valueOf("#000000");
         fontParameter.borderWidth = 1;
         highestScoreTextFont = georiaFontGenerator.generateFont(fontParameter);
@@ -174,14 +178,13 @@ public class ScoreScreen extends AbstractScreen {
         TextButton.TextButtonStyle selectedTextButtonStyle = new TextButton.TextButtonStyle();
         selectedTextButtonStyle.font = selectedTextFont;
 
-        ScoreManager.getInstance().addNewScore(1700);
         // Lines text
         lines.add(new TextButton("         Time          Score", normalTextButtonStyle));
 
         List<String> lineStrs = new LinkedList<>();
-        for (Pair<String, Integer> e: ScoreManager.getInstance().getListScore()) {
+        for (MyEntry<String,Integer> e: ScoreManager.getInstance().getListScore()) {
             if (e.getKey() != null) {
-                lineStrs.add(e.getKey()+ "             " + e.getValue());
+                lineStrs.add(e.getKey()+ "             " + String.format(new Locale("EN"),"%04d",e.getValue()));
             }
         }
 //        Collections.reverse(lineStrs);
