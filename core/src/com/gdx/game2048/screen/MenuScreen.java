@@ -148,16 +148,12 @@ public class MenuScreen extends AbstractScreen {
         float linePadding = height* 0.1f;
 
         nextLevelButton.setPosition(screenMidX + buttonPaddingMidX - iconSize_Width/2 , rootLine, Align.center);
-        nextLevelButton.setSize(iconSize_Width, iconSize_Height);
 
         preLevelButton.setPosition(screenMidX - buttonPaddingMidX + iconSize_Width/2 , rootLine, Align.center);
-        preLevelButton.setSize(iconSize_Width, iconSize_Height);
 
         nextAIButton.setPosition(screenMidX + buttonPaddingMidX*1.3f - iconSize_Width/2  , rootLine - linePadding*2, Align.center);
-        nextAIButton.setSize(iconSize_Width, iconSize_Height);
 
         preAIButton.setPosition(screenMidX - buttonPaddingMidX*1.3f + iconSize_Width/2  , rootLine - linePadding*2, Align.center);
-        preAIButton.setSize(iconSize_Width, iconSize_Height);
 
         imageLevel.setSize(imageSize, imageSize);
         imageLevel.setPosition(width*0.5f , height*0.78f, Align.center);
@@ -292,8 +288,20 @@ public class MenuScreen extends AbstractScreen {
             }
         });
 
+        lines.get("highScore").addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                super.clicked(event, x, y);
+                startSetting();
+            }
+        });
+
         curSelectedState = 1;
         changeSelectState();
+    }
+
+    private void startSetting() {
+        ScreenManager.getInstance().showScreen(ScreenEnum.SETTING);
     }
 
     private void startAI() {

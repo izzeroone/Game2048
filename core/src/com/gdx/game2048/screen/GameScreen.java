@@ -1,5 +1,6 @@
 package com.gdx.game2048.screen;
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.audio.Music;
@@ -18,6 +19,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.gdx.game2048.logic.GameLogic;
+import com.gdx.game2048.manager.GameSetting;
 import com.gdx.game2048.manager.ScreenManager;
 import com.gdx.game2048.model.animation.AnimationCell;
 import com.gdx.game2048.model.animation.AnimationType;
@@ -109,7 +111,11 @@ public class GameScreen extends AbstractScreen {
         mainTheme = Gdx.audio.newMusic(Gdx.files.internal("music/maintheme.mp3"));
         fontGenerator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/ClearSans-Bold.ttf"));
         fontParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-        gameAtlas = new TextureAtlas("themes/circle.atlas");
+        if (GameSetting.getInstance().getTileStyle())
+            gameAtlas = new TextureAtlas("themes/circle.atlas");
+        else
+            gameAtlas = new TextureAtlas("themes/round.atlas");
+
         gameSkin = new Skin(gameAtlas);
 
         //add view to object manager
@@ -408,6 +414,8 @@ public class GameScreen extends AbstractScreen {
         GDXButtonDialog bDialog = dialogs.newDialog(GDXButtonDialog.class);
         switch (game.gameState) {
             case WIN:
+                //todo: music
+
                 bDialog.setTitle("You win");
                 bDialog.setMessage("Do you want to restart?");
                 bDialog.setClickListener(new ButtonClickListener() {
@@ -417,8 +425,10 @@ public class GameScreen extends AbstractScreen {
                             case 0:
                                 game.newGame(autoPlay);
                                 game.gameStart();
+                                break;
                             case 1:
                                 ScreenManager.getInstance().showScreen(ScreenEnum.MAIN_MENU);
+                                break;
 
                         }
                         isDialogShow = false;
