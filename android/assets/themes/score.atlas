@@ -1,13 +1,13 @@
 
 score.png
-size: 2048,512
+size: 512,256
 format: RGBA8888
 filter: Nearest,Nearest
 repeat: none
 high_score
   rotate: false
   xy: 2, 2
-  size: 1540, 346
-  orig: 1540, 346
+  size: 486, 224
+  orig: 486, 224
   offset: 0, 0
   index: -1

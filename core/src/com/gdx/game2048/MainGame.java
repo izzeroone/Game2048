@@ -8,6 +8,6 @@ public class MainGame extends Game {
     @Override
     public void create() {
         ScreenManager.getInstance().initialize(this);
-        ScreenManager.getInstance().showScreen(ScreenEnum.SCORE);
+        ScreenManager.getInstance().showScreen(ScreenEnum.SETTING);
     }
 }

@@ -18,7 +18,7 @@ public class MusicManager {
         if (instance == null) {
             instance = new MusicManager();
             instance.loadResource();
-            instance.mute = true;
+            instance.mute = GameSetting.getInstance().getMusicMute();
         }
         return instance;
     }
@@ -48,7 +48,6 @@ public class MusicManager {
 
     public void mute(boolean b) {
         mute = b;
-
-
+        GameSetting.getInstance().changeSetting();
     }
 }

@@ -4,6 +4,9 @@ package com.gdx.game2048.logic;
 
 
 import com.badlogic.gdx.Game;
+import com.badlogic.gdx.utils.async.AsyncExecutor;
+import com.badlogic.gdx.utils.async.AsyncResult;
+import com.badlogic.gdx.utils.async.AsyncTask;
 import com.gdx.game2048.model.animation.AnimationCell;
 import com.gdx.game2048.model.data.Tile;
 import com.gdx.game2048.model.animation.AnimationGrid;
@@ -188,20 +191,41 @@ public class GameLogic {
             //save Undostate and check for Win Lose
             grid.playerTurn = false;
             saveUndoState();
-            computerMove();
+            runAsyn();
             //Update score
             score = grid.score;
             checkWin();
             checkLose();
+            // computer move() -- > playerTurn = false
         }
 
         mGameScreen.resyncTime();
     }
 
+    private AsyncExecutor asyncExecutor = new AsyncExecutor(10);
+
+    private AsyncResult<Void> task;
+
+    private void runAsyn() {
+        //create our async task that runs our async method
+        task = asyncExecutor.submit(new AsyncTask<Void>() {
+            public Void call() {
+                computerMove();
+                return null;
+            }
+        });
+    }
+
+    private OnCompleteMoveListener listener;
+
+    interface OnCompleteMoveListener{
+        public void OnCompleteMove();
+    }
+
     public void computerMove(){
         addRandomTile();
-        this.grid.playerTurn = true;
-
+        grid.playerTurn = true;
+        listener.OnCompleteMove();
     }
 
     private void checkLose() {
@@ -230,13 +254,17 @@ public class GameLogic {
     }
 
     public void autoPlay() {
-            GameAI gameAI = new GameAI(this.grid);
-            while (true){
+        GameAI gameAI = new GameAI(this.grid);
+        listener = new OnCompleteMoveListener() {
+            @Override
+            public void OnCompleteMove() {
                 SearchResult best = gameAI.getBest();
                 System.out.printf("Eval : %f \n", gameAI.eval());
-                this.move(best.getMove());
+                GameLogic.this.move(best.getMove());
             }
+        };
 
+        listener.OnCompleteMove();
     }
 
 

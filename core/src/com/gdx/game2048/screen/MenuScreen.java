@@ -273,8 +273,8 @@ public class MenuScreen extends AbstractScreen {
         lines.put("startGame", new TextButton("Start Game", normalTextButtonStyle));
         lines.put("ai", new TextButton(aiInfo.get(curAI), normalTextButtonStyle));
         lines.put("startAI", new TextButton("Play With Help" , normalTextButtonStyle));
-        lines.put("music", new TextButton("Music: ", normalTextButtonStyle));
-        musicStateChange();
+
+        lines.put("highScore", new TextButton("High Score", normalTextButtonStyle));
 
         lines.get("startGame").addListener(new ClickListener(){
             @Override
@@ -292,21 +292,8 @@ public class MenuScreen extends AbstractScreen {
             }
         });
 
-        lines.get("music").addListener(new ClickListener(){
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                super.clicked(event, x, y);
-                musicStateChange();
-            }
-        });
-
         curSelectedState = 1;
         changeSelectState();
-    }
-
-    private void musicStateChange() {
-        MusicManager.getInstance().mute(! MusicManager.getInstance().isMute());
-        lines.get("music").setText("Music: " + MusicManager.getInstance().getMuteAsText());
     }
 
     private void startAI() {
@@ -385,9 +372,6 @@ public class MenuScreen extends AbstractScreen {
                 startGame();
             else if (curSelectedState == 4)
                 startAI();
-            else if (curSelectedState == 5) {
-                musicStateChange();
-            }
         }
     }
 

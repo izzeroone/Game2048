@@ -15,7 +15,7 @@ public class TimeUtils {
 
     public static final SimpleDateFormat userDateFormat = new SimpleDateFormat("EEEE dd MMMM yyyy");
     public static final SimpleDateFormat userTimeFormat = new SimpleDateFormat("HH:mm");
-    public static final SimpleDateFormat userDateTimeFormat = new SimpleDateFormat("EEEE dd MMMM, HH:mm");
+    public static final SimpleDateFormat userDateTimeFormat = new SimpleDateFormat("HH:mm MMMM dd");
 
 
     public static String getCurrentTimeAsString() {
@@ -84,6 +84,11 @@ public class TimeUtils {
     public static String dateToUserDateTimeStr(String date) {
         return userDateTimeFormat.format(strToDate(date));
     }
+    public static String getCurrentTimeAsUserDateTimeStr() {
+        Calendar c = Calendar.getInstance();
+        return  userDateTimeFormat.format(c.getTime());
+    }
+
     // Func
 
     /**

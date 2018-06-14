@@ -4,23 +4,22 @@ package com.gdx.game2048.screen;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
-import com.gdx.game2048.manager.MusicManager;
+import com.gdx.game2048.manager.ScoreManager;
 import com.gdx.game2048.manager.ScreenManager;
 import javafx.util.Pair;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import java.util.*;
 
 public class ScoreScreen extends AbstractScreen {
 
@@ -39,25 +38,25 @@ public class ScoreScreen extends AbstractScreen {
 
     private TextureAtlas gameAtlas;
 
-    private Image imageLevel;
+    private Image image;
 
     private int iconPaddingSize;
 
     //Text
-    FreeTypeFontGenerator fontGenerator;
+    FreeTypeFontGenerator normalFontGenerator;
+    FreeTypeFontGenerator georiaFontGenerator;
+
     FreeTypeFontGenerator.FreeTypeFontParameter fontParameter;
     BitmapFont normalTextFont;
-    BitmapFont selectedTextFont;
+    BitmapFont scoreTextFont;
+    BitmapFont highestScoreTextFont;
     TextButton.TextButtonStyle normalTextButtonStyle;
-    TextButton.TextButtonStyle selectedTextButtonStyle;
+    TextButton.TextButtonStyle scoreTextButtonStyle;
+    TextButton.TextButtonStyle highestTextButtonStyle;
 
-    private LinkedHashMap<String, TextButton> lines = new LinkedHashMap<>();
 
-    LinkedHashMap<Integer, Pair<String,String>> levelInfo;
-    int curLevel = 3;
-
-    LinkedHashMap<Integer, String> aiInfo;
-    int curAI = 1;
+    private LinkedList<TextButton> lines = new LinkedList<>();
+    TextButton highestScore;
 
     //Timing for draw
     private long lastFPSTime = System.currentTimeMillis();
@@ -68,11 +67,15 @@ public class ScoreScreen extends AbstractScreen {
 
     @Override
     public void buildStage() {
+
+
         batch = new SpriteBatch();
 
         //Loading asset
-        fontGenerator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/ClearSans-Bold.ttf"));
+        normalFontGenerator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/ClearSans-Bold.ttf"));
+        georiaFontGenerator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/GeorgiaPro-BlackIt.ttf"));
         fontParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+
         //Step 2: TextureAtlas with atlas path
         gameAtlas = new TextureAtlas("themes/score.atlas");
 
@@ -80,15 +83,16 @@ public class ScoreScreen extends AbstractScreen {
         gameSkin = new Skin(gameAtlas);
 
         //setup button
-        createButton();
+        createView();
 
         //Step 6: add to stage
-        this.addActor(imageLevel);
+        this.addActor(image);
 
-        for (TextButton line :
-                lines.values()) {
+        for (TextButton line : lines) {
             this.addActor(line);
         }
+        this.addActor(highestScore);
+
 
         Gdx.input.setInputProcessor(this);
     }
@@ -99,8 +103,6 @@ public class ScoreScreen extends AbstractScreen {
 
         handleInput();
         //Reset the transparency of the screen
-//        Gdx.gl.glClearColor(1, 1, 1, 1);
-//        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         batch.begin();
         batch.end();
@@ -117,83 +119,98 @@ public class ScoreScreen extends AbstractScreen {
 
         int screenMidX = width / 2;
         int screenMidY = height / 2;
-        int iconSize_Width = 40;
-        int iconSize_Height = 40;
         iconPaddingSize = 50;
-        float imageSize = 240;
 
         // Step 7 : set position
-        int buttonPaddingMidX = width/4;
-        float rootLine = height* 0.54f;
-        float linePadding = height* 0.1f;
+        float rootLine = height* 0.6f;
+        float linePadding = height* 0.05f;
 
-        imageLevel.setSize(imageSize, imageSize);
-        imageLevel.setPosition(width*0.5f , height*0.78f, Align.center);
+        image.setPosition(width*0.5f , height*0.78f, Align.center);
+
+        highestScore.setPosition(width*0.65f, height*0.74f, Align.center);
 
         for (int i = 0; i < lines.size(); i++) {
-            getByIndex(i).setPosition(screenMidX, rootLine - linePadding*i, Align.center);
+            lines.get(i).setPosition(screenMidX, rootLine - linePadding*i, Align.center);
         }
+
     }
 
-    public TextButton getByIndex(int index){
-        return (new ArrayList<TextButton>(lines.values())).get(index);
-    }
 
     public void resyncTime() {
         lastFPSTime = System.currentTimeMillis();
     }
 
-    private void createButton() {
+    private void createView() {
 
-        //Step 4: create button
+        //Step 4: create view
+        image = new Image(gameSkin.getDrawable("high_score"));
 
-        imageLevel = new Image(gameSkin.getDrawable("high_score"));
-
-        fontParameter.size = Gdx.graphics.getWidth() / 11;
+        fontParameter.size = Gdx.graphics.getWidth() / 14;
         fontParameter.color = Color.valueOf("#efb75d");
-        normalTextFont = fontGenerator.generateFont(fontParameter);
-        fontParameter.borderColor = Color.valueOf("#855d4f");
+        normalTextFont = georiaFontGenerator.generateFont(fontParameter);
+
+        fontParameter.size = Gdx.graphics.getWidth() / 18;
+        scoreTextFont = normalFontGenerator.generateFont(fontParameter);
+
+        fontParameter.size = Gdx.graphics.getWidth() / 6;
+        fontParameter.color = Color.valueOf("#FFBD0B");
+        fontParameter.borderColor = Color.valueOf("#000000");
         fontParameter.borderWidth = 1;
-        selectedTextFont = fontGenerator.generateFont(fontParameter);
+        highestScoreTextFont = georiaFontGenerator.generateFont(fontParameter);
 
         normalTextButtonStyle = new TextButton.TextButtonStyle();
         normalTextButtonStyle.font = normalTextFont;
 
-        selectedTextButtonStyle = new TextButton.TextButtonStyle();
+        scoreTextButtonStyle = new TextButton.TextButtonStyle();
+        scoreTextButtonStyle.font = scoreTextFont;
+
+        highestTextButtonStyle = new TextButton.TextButtonStyle();
+        highestTextButtonStyle.font = highestScoreTextFont;
+
+        fontParameter.size = Gdx.graphics.getWidth() / 11;
+        fontParameter.borderColor = Color.valueOf("#855d4f");
+        fontParameter.borderWidth = 1;
+        BitmapFont selectedTextFont = normalFontGenerator.generateFont(fontParameter);
+        TextButton.TextButtonStyle selectedTextButtonStyle = new TextButton.TextButtonStyle();
         selectedTextButtonStyle.font = selectedTextFont;
 
-//        lines.put("level", new TextButton(levelInfo.get(curLevel).getKey(), normalTextButtonStyle));
-//        lines.put("startGame", new TextButton("Start Game", normalTextButtonStyle));
-//        lines.put("ai", new TextButton(aiInfo.get(curAI), normalTextButtonStyle));
-//        lines.put("startAI", new TextButton("Play With Help" , normalTextButtonStyle));
-//        lines.put("music", new TextButton("Music: ", normalTextButtonStyle));
-        
+        ScoreManager.getInstance().addNewScore(1700);
+        // Lines text
+        lines.add(new TextButton("         Time          Score", normalTextButtonStyle));
 
+        List<String> lineStrs = new LinkedList<>();
+        for (Pair<String, Integer> e: ScoreManager.getInstance().getListScore()) {
+            if (e.getKey() != null) {
+                lineStrs.add(e.getKey()+ "             " + e.getValue());
+            }
+        }
+//        Collections.reverse(lineStrs);
+        for (String lineStr : lineStrs) {
+            lines.add(new TextButton(lineStr, scoreTextButtonStyle));
+        }
+
+        lines.add(new TextButton("", normalTextButtonStyle));
+
+        TextButton backText = new TextButton("BACK", selectedTextButtonStyle);
+        backText.addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                super.clicked(event, x, y);
+                ScreenManager.getInstance().showScreen(ScreenEnum.MAIN_MENU);
+            }
+        });
+        lines.add(backText);
+
+
+        highestScore = new TextButton(ScoreManager.getInstance().getHighestScore().toString(), highestTextButtonStyle);
     }
 
     private void handleInput(){
         //Don't handle input while there is an active animation
 
-        if(Gdx.input.isKeyJustPressed(Input.Keys.UP)){
-            System.out.println("Move up");
-
-
-        }
-        if(Gdx.input.isKeyJustPressed(Input.Keys.DOWN)){
-            System.out.println("Move down");
-
-        }
-        if(Gdx.input.isKeyJustPressed(Input.Keys.LEFT)){
-            System.out.println("Move left");
-
-        }
-        if(Gdx.input.isKeyJustPressed(Input.Keys.RIGHT)){
-            System.out.println("Move right");
-
-        }
-
         if(Gdx.input.isKeyJustPressed(Input.Keys.ENTER) || Gdx.input.isKeyJustPressed(Input.Keys.SPACE)){
             System.out.println("Enter || Space");
+            ScreenManager.getInstance().showScreen(ScreenEnum.MAIN_MENU);
 
         }
     }
