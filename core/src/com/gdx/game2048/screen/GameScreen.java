@@ -18,21 +18,27 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.gdx.game2048.logic.GameLogic;
+import com.gdx.game2048.manager.ScreenManager;
 import com.gdx.game2048.model.animation.AnimationCell;
 import com.gdx.game2048.model.animation.AnimationType;
 import com.gdx.game2048.model.data.Tile;
+import de.tomgrill.gdxdialogs.core.GDXDialogs;
+import de.tomgrill.gdxdialogs.core.GDXDialogsSystem;
+import de.tomgrill.gdxdialogs.core.dialogs.GDXButtonDialog;
+import de.tomgrill.gdxdialogs.core.listener.ButtonClickListener;
 
 import java.util.ArrayList;
 
 public class GameScreen extends AbstractScreen {
     //Game logic
     GameLogic game;
+    boolean autoPlay;
 
     //Tag for debug
     private static final String TAG = GameScreen.class.getSimpleName();
 
     //Animation constant
-    public static final int BASE_ANIMATION_TIME = 200;
+    public static final int BASE_ANIMATION_TIME = 100;
     private static final float MERGING_ACCEL = -0.5f;
     private static final float INITIAL_VELO = (1 - MERGING_ACCEL) / 4;
 
@@ -72,12 +78,10 @@ public class GameScreen extends AbstractScreen {
     //Batch for drawing;
     private SpriteBatch batch;
 
-    //auto play
-    Thread autoPlay;
 
-    //game input
-    Thread gameMoveThread;
-    int inputDirection = -1;
+    //dialog system
+    GDXDialogs dialogs = GDXDialogsSystem.install();
+    boolean isDialogShow = false;
 
     public GameScreen() {
         game = new GameLogic(this);
@@ -90,9 +94,7 @@ public class GameScreen extends AbstractScreen {
     public GameScreen(int numCellX, int numCellY, boolean auto) {
         this.game = new GameLogic(numCellX, numCellY, this);
         final GameLogic thatGame = this.game;
-        if(auto){
-            autoPlay = new Thread(() -> thatGame.autoPlay());
-        }
+        this.autoPlay = auto;
     }
 
     @Override
@@ -100,18 +102,15 @@ public class GameScreen extends AbstractScreen {
         batch = new SpriteBatch();
 
         //Start game
-        game.newGame();
+        game.newGame(autoPlay);
         game.gameStart();
-        if(autoPlay != null){
-            autoPlay.start();
-        }
+
         //Loading asset
         mainTheme = Gdx.audio.newMusic(Gdx.files.internal("music/maintheme.mp3"));
         fontGenerator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/ClearSans-Bold.ttf"));
         fontParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-        gameAtlas = new TextureAtlas("themes/default.atlas");
+        gameAtlas = new TextureAtlas("themes/circle.atlas");
         gameSkin = new Skin(gameAtlas);
-
 
         //add view to object manager
         createButton();
@@ -132,9 +131,12 @@ public class GameScreen extends AbstractScreen {
     public void render(float delta) {
         super.render(delta);
         handleInput();
+        //Handle game state
+        notifyGameState();
         batch.begin();
         //Draw cell shape
         drawScore();
+        drawBackGround();
         drawCells();
         batch.end();
         //Refresh the screen if there is still an animation running
@@ -145,7 +147,12 @@ public class GameScreen extends AbstractScreen {
             refreshLastTime = false;
         }
 
+
+
+
     }
+
+
 
     @Override
     public void resize(int width, int height) {
@@ -153,6 +160,9 @@ public class GameScreen extends AbstractScreen {
         this.makeLayout(width, height);
     }
 
+    private void drawBackGround() {
+        gameSkin.getPatch("ninepatch").draw(batch, gridRect.x, gridRect.y, gridRect.width, gridRect.height);
+    }
 
     private void drawScore() {
         gameScore = String.valueOf(game.score);
@@ -264,17 +274,17 @@ public class GameScreen extends AbstractScreen {
 
         gridRect.x = (int) (screenMidX - (cellSize + cellPadding) * halfNumSquaresX - cellPadding / 2);
         gridRect.width = (int) (screenMidX + (cellSize + cellPadding) * halfNumSquaresX + cellPadding / 2 - gridRect.x);
-        gridRect.y = (int) (boardMidY - (cellSize + cellPadding) * halfNumSquaresY - cellPadding / 2);
-        gridRect.height = (int) (boardMidY + (cellSize + cellPadding) * halfNumSquaresY + cellPadding / 2 - gridRect.y);
+        gridRect.y = (int) (boardMidY - (cellSize + cellPadding) * halfNumSquaresY - cellPadding);
+        gridRect.height = (int) (boardMidY + (cellSize + cellPadding) * halfNumSquaresY - gridRect.y);
 
 
-        backButton.setPosition(screenMidX - iconSize * 3 / 2 - iconPaddingSize, height - iconPaddingSize, Align.left);
+        backButton.setPosition(screenMidX - iconSize * 3 / 2 - iconPaddingSize, height - iconPaddingSize / 2, Align.left);
         backButton.setSize(iconSize, iconSize);
 
-        homeButton.setPosition(screenMidX - iconSize / 2, height - iconPaddingSize, Align.left);
+        homeButton.setPosition(screenMidX - iconSize / 2, height - iconPaddingSize / 2, Align.left);
         homeButton.setSize(iconSize, iconSize);
 
-        restartButton.setPosition(screenMidX + iconSize / 2 + iconPaddingSize, height - iconPaddingSize, Align.left);
+        restartButton.setPosition(screenMidX + iconSize / 2 + iconPaddingSize, height - iconPaddingSize / 2, Align.left);
         restartButton.setSize(iconSize, iconSize);
 
 
@@ -290,7 +300,63 @@ public class GameScreen extends AbstractScreen {
 
     private void createButton() {
         homeButton = new Button(gameSkin.getDrawable("ic_home"));
+        homeButton.addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                super.clicked(event, x, y);
+                if(isDialogShow){
+                    return;
+                }
+                GDXButtonDialog bDialog = dialogs.newDialog(GDXButtonDialog.class);
+                bDialog.setTitle("Go home");
+                bDialog.setMessage("Wanna go home?");
+                bDialog.setClickListener(new ButtonClickListener() {
+                    @Override
+                    public void click(int button) {
+                        switch (button){
+                            case 0:
+                                ScreenManager.getInstance().showScreen(ScreenEnum.MAIN_MENU);
+
+                        }
+                        isDialogShow = false;
+                    }
+                });
+
+                bDialog.addButton("Take me home");
+                bDialog.addButton("Stay here");
+                bDialog.build().show();
+                isDialogShow = true;
+            }
+        });
         restartButton = new Button(gameSkin.getDrawable("ic_restart"));
+        restartButton.addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                super.clicked(event, x, y);
+                if(isDialogShow){
+                    return;
+                }
+                GDXButtonDialog bDialog = dialogs.newDialog(GDXButtonDialog.class);
+                bDialog.setTitle("Restart");
+                bDialog.setMessage("Wanna try again?");
+                bDialog.setClickListener(new ButtonClickListener() {
+                    @Override
+                    public void click(int button) {
+                        switch (button){
+                            case 0:
+                                game.newGame(autoPlay);
+                                game.gameStart();
+                        }
+                        isDialogShow = false;
+                    }
+                });
+
+                bDialog.addButton("Get me out of here");
+                bDialog.addButton("Let me finish the game!");
+                bDialog.build().show();
+                isDialogShow = true;
+            }
+        });
         backButton = new Button(gameSkin.getDrawable("ic_back"));
         backButton.addListener(new ClickListener(){
             @Override
@@ -317,24 +383,76 @@ public class GameScreen extends AbstractScreen {
         if(Gdx.input.isKeyJustPressed(Input.Keys.UP)){
             System.out.println("Move up");
             game.move(0);
-            game.grid.printCurrentField();
         }
         if(Gdx.input.isKeyJustPressed(Input.Keys.DOWN)){
             System.out.println("Move down");
             game.move(2);
-            game.grid.printCurrentField();
         }
         if(Gdx.input.isKeyJustPressed(Input.Keys.LEFT)){
             System.out.println("Move left");
             game.move(3);
-            game.grid.printCurrentField();
         }
         if(Gdx.input.isKeyJustPressed(Input.Keys.RIGHT)){
             System.out.println("Move right");
             game.move(1);
-            game.grid.printCurrentField();
+
         }
 
 
+    }
+
+    private void notifyGameState() {
+        if(isDialogShow){
+            return;
+        }
+        GDXButtonDialog bDialog = dialogs.newDialog(GDXButtonDialog.class);
+        switch (game.gameState) {
+            case WIN:
+                bDialog.setTitle("You win");
+                bDialog.setMessage("Do you want to restart?");
+                bDialog.setClickListener(new ButtonClickListener() {
+                    @Override
+                    public void click(int button) {
+                        switch (button){
+                            case 0:
+                                game.newGame(autoPlay);
+                                game.gameStart();
+                            case 1:
+                                ScreenManager.getInstance().showScreen(ScreenEnum.MAIN_MENU);
+
+                        }
+                        isDialogShow = false;
+                    }
+                });
+
+                bDialog.addButton("Yes");
+                bDialog.addButton("Take me home");
+                bDialog.build().show();
+                isDialogShow = true;
+                break;
+            case LOST:
+                bDialog.setTitle("You lost");
+                bDialog.setMessage("Try again?");
+                bDialog.setClickListener(new ButtonClickListener() {
+                    @Override
+                    public void click(int button) {
+                        game.newGame(autoPlay);
+                        game.gameStart();
+                    }
+                });
+                bDialog.addButton("Yes");
+                bDialog.addButton("Why not!");
+                bDialog.addButton("Yes, nomnom!");
+                bDialog.build().show();
+                isDialogShow = true;
+                break;
+        }
+
+    }
+
+    public void changeTheme(String themeName){
+        gameAtlas = new TextureAtlas(String.format("themes/%s.atlas", themeName));
+        gameSkin = new Skin(gameAtlas);
+        createButton();
     }
 }

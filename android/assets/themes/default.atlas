@@ -2,7 +2,7 @@
 default.png
 size: 2048,2048
 format: RGBA8888
-filter: Nearest,Nearest
+filter: Linear, Linear
 repeat: none
 cell10
   rotate: false
@@ -92,7 +92,7 @@ ic_restart
 default2.png
 size: 2048,2048
 format: RGBA8888
-filter: Nearest,Nearest
+filter: Linear, Linear
 repeat: none
 cell1
   rotate: false

@@ -4,9 +4,6 @@ package com.gdx.game2048.logic;
 
 
 import com.badlogic.gdx.Game;
-import com.badlogic.gdx.utils.async.AsyncExecutor;
-import com.badlogic.gdx.utils.async.AsyncResult;
-import com.badlogic.gdx.utils.async.AsyncTask;
 import com.gdx.game2048.model.animation.AnimationCell;
 import com.gdx.game2048.model.data.Tile;
 import com.gdx.game2048.model.animation.AnimationGrid;
@@ -15,6 +12,8 @@ import com.gdx.game2048.model.data.Cell;
 import com.gdx.game2048.model.data.GameState;
 import com.gdx.game2048.model.data.Grid;
 import com.gdx.game2048.screen.GameScreen;
+
+import java.util.Timer;
 
 public class GameLogic {
     //timer and its update
@@ -39,6 +38,14 @@ public class GameLogic {
     public long lastScore = 0;
     private long bufferScore;
 
+    //auto play
+    private boolean autoPlay = false;
+    //auto play
+    Thread autoPlayThread;
+
+    //game input
+    Thread computerThread;
+
     public GameLogic() {
     }
 
@@ -53,7 +60,29 @@ public class GameLogic {
     }
 
 
-    public void newGame(){
+    public void newGame(final boolean autoPlay){
+        //Create auto play thread
+        this.autoPlay = autoPlay;
+        if (autoPlay) {
+            autoPlayThread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    while (true) {
+                        autoPlay();
+                    }
+                }
+            });
+        }
+
+        //Create computer play thread
+        computerThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (true) {
+                    computerMove();
+                }
+            }
+        });
         if(grid == null){
             //create new gird
             grid = new Grid(numCellX, numCellY);
@@ -98,6 +127,11 @@ public class GameLogic {
             //play sound
             //refresh view
             grid.playerTurn = true;
+            //Start the auto thread and computer thread
+            if (this.autoPlay) {
+                autoPlayThread.start();
+            }
+            computerThread.start();
             mGameScreen.refreshLastTime = true;
             mGameScreen.resyncTime();
 
@@ -169,11 +203,11 @@ public class GameLogic {
     }
 
     //moving to direction all cell
-    public void move(int direction){
+    public synchronized void move(int direction){
 
 //        SoundPoolManager.getInstance().playSound(R.raw.step);
         //cancel all animation
-//        animationGrid.cancelAnimations();
+        animationGrid.cancelAnimations();
         if(!isActive()){
             return;
         }
@@ -191,81 +225,87 @@ public class GameLogic {
             //save Undostate and check for Win Lose
             grid.playerTurn = false;
             saveUndoState();
-            runAsyn();
             //Update score
             score = grid.score;
             checkWin();
-            checkLose();
-            // computer move() -- > playerTurn = false
+            notify();
         }
 
+        checkLose();
         mGameScreen.resyncTime();
     }
 
-    private AsyncExecutor asyncExecutor = new AsyncExecutor(10);
+    public synchronized void computerMove(){
+        final GameLogic self = this;
+        while (true){
+            while (this.grid.playerTurn || !isActive()){
+                try {
+                    wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            };
 
-    private AsyncResult<Void> task;
-
-    private void runAsyn() {
-        //create our async task that runs our async method
-        task = asyncExecutor.submit(new AsyncTask<Void>() {
-            public Void call() {
-                computerMove();
-                return null;
+            addRandomTile();
+            try {
+                Thread.sleep(GameScreen.BASE_ANIMATION_TIME);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
-        });
-    }
+            self.grid.playerTurn = true;
+            notify();
+        }
 
-    private OnCompleteMoveListener listener;
-
-    interface OnCompleteMoveListener{
-        public void OnCompleteMove();
-    }
-
-    public void computerMove(){
-        addRandomTile();
-        grid.playerTurn = true;
-        listener.OnCompleteMove();
     }
 
     private void checkLose() {
-        if(false){
+        if(!grid.movesAvailable()){
             gameState = GameState.LOST;
             endGame();
         }
     }
 
     private  void checkWin(){
-        if(isWin()){
+        if(grid.isWin()){
             gameState = GameState.WIN;
             endGame();
         }
     }
 
-    private boolean isWin() {
-        return false;
-    }
 
 
 
     private void endGame() {
         //GameActivity.timerRunnable.onPause();
         animationGrid.startAnimation(-1, -1, AnimationType.FADE_GLOBAL, NOTIFICATION_ANIMATION_TIME, NOTIFICATION_DELAY_TIME, null);
+        //Stop auto thread and computer thread
+        if(autoPlay){
+            autoPlayThread.interrupt();
+        }
+        computerThread.interrupt();
     }
 
-    public void autoPlay() {
-        GameAI gameAI = new GameAI(this.grid);
-        listener = new OnCompleteMoveListener() {
-            @Override
-            public void OnCompleteMove() {
+    public synchronized void autoPlay() {
+            GameAI gameAI = new GameAI(this.grid);
+            while (true){
+
                 SearchResult best = gameAI.getBest();
                 System.out.printf("Eval : %f \n", gameAI.eval());
-                GameLogic.this.move(best.getMove());
-            }
-        };
 
-        listener.OnCompleteMove();
+                while (!grid.playerTurn || !isActive()){
+                    try {
+                        wait();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+                this.move(best.getMove());
+                notify();
+            }
+
     }
+
+
 
 
 
