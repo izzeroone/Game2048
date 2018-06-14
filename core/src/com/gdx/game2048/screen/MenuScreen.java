@@ -323,12 +323,12 @@ public class MenuScreen extends AbstractScreen {
 
     private void startAI() {
         // dùng biến curAI để xét
-        ScreenManager.getInstance().showScreen(ScreenEnum.GAME, curLevel, curLevel, true);
+        ScreenManager.getInstance().showScreen(ScreenEnum.GAME, curLevel, curLevel, true, curAI);
     }
 
     private void startGame() {
         // dùng biến curLevel để xét
-        ScreenManager.getInstance().showScreen(ScreenEnum.GAME, curLevel, curLevel, false);
+        ScreenManager.getInstance().showScreen(ScreenEnum.GAME, curLevel, curLevel, false, curAI);
     }
 
     private int curSelectedState;

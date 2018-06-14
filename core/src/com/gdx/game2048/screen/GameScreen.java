@@ -94,6 +94,13 @@ public class GameScreen extends AbstractScreen {
         this.autoPlay = auto;
     }
 
+    public GameScreen(int numCellX, int numCellY, boolean auto, int autoStyle) {
+        this.game = new GameLogic(numCellX, numCellY, this);
+        final GameLogic thatGame = this.game;
+        this.autoPlay = auto;
+        game.setAutoPlayStyle(autoStyle);
+    }
+
     @Override
     public void buildStage() {
         batch = new SpriteBatch();

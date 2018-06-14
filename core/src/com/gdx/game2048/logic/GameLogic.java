@@ -15,6 +15,7 @@ import com.gdx.game2048.model.data.Grid;
 import com.gdx.game2048.screen.GameScreen;
 
 import java.util.Timer;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class GameLogic {
     //timer and its update
@@ -43,6 +44,12 @@ public class GameLogic {
     private boolean autoPlay = false;
     //auto play
     Thread autoPlayThread;
+    //auto play style = {random or minimax}
+    int autoPlayStyle;
+
+    public void setAutoPlayStyle(int autoPlayStyle) {
+        this.autoPlayStyle = autoPlayStyle;
+    }
 
     //game input
     Thread computerThread;
@@ -298,13 +305,20 @@ public class GameLogic {
         GameAI gameAI = new GameAI(this.grid);
         while (!autoPlayThread.isInterrupted()){
             SearchResult best = gameAI.getBest();
-            System.out.printf("Eval : %f \n", gameAI.eval());
+
             while (!grid.playerTurn || !isActive() && !autoPlayThread.isInterrupted()){
                 synchronized (this) {
                     this.wait();
                 }
             }
-            this.move(best.getMove());
+            if(autoPlayStyle == 1){
+                int randomDirection = ThreadLocalRandom.current().nextInt(0, 3 + 1);
+                this.move(randomDirection);
+            } else {
+                System.out.printf("Eval : %f \n", gameAI.eval());
+                this.move(best.getMove());
+            }
+
             notify();
         }
 
