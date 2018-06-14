@@ -15,6 +15,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.gdx.game2048.manager.GameSetting;
 import com.gdx.game2048.manager.MusicManager;
+import com.gdx.game2048.manager.ScreenManager;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -37,8 +38,10 @@ public class SettingScreen extends AbstractScreen {
     FreeTypeFontGenerator.FreeTypeFontParameter fontParameter;
     BitmapFont normalTextFont;
     BitmapFont selectedTextFont;
+    BitmapFont titleTextFont;
     TextButton.TextButtonStyle normalTextButtonStyle;
     TextButton.TextButtonStyle selectedTextButtonStyle;
+    TextButton.TextButtonStyle titleTextButtonStyle;
 
     private LinkedHashMap<String, TextButton> lines = new LinkedHashMap<>();
 
@@ -125,10 +128,6 @@ public class SettingScreen extends AbstractScreen {
 
     private void createButton() {
 
-        //Step 4: create button
-
-        //Step 5: add event
-
         fontParameter.size = Gdx.graphics.getWidth() / 11;
         fontParameter.color = Color.valueOf("#efb75d");
         normalTextFont = fontGenerator.generateFont(fontParameter);
@@ -137,9 +136,9 @@ public class SettingScreen extends AbstractScreen {
         fontParameter.borderWidth = 1;
         selectedTextFont = fontGenerator.generateFont(fontParameter);
 
-        fontParameter.borderColor = Color.valueOf("#855d4f");
-        fontParameter.size = Gdx.graphics.getWidth() / 8;
-        BitmapFont titleTextFont = georiaFontGenerator.generateFont(fontParameter);
+        fontParameter.size = Gdx.graphics.getWidth() / 10;
+        fontParameter.color = Color.valueOf("#efb75d");
+        titleTextFont = georiaFontGenerator.generateFont(fontParameter);
 
         normalTextButtonStyle = new TextButton.TextButtonStyle();
         normalTextButtonStyle.font = normalTextFont;
@@ -147,7 +146,7 @@ public class SettingScreen extends AbstractScreen {
         selectedTextButtonStyle = new TextButton.TextButtonStyle();
         selectedTextButtonStyle.font = selectedTextFont;
 
-        TextButton.TextButtonStyle titleTextButtonStyle = new TextButton.TextButtonStyle();
+        titleTextButtonStyle = new TextButton.TextButtonStyle();
         titleTextButtonStyle.font = titleTextFont;
 
         lines.put("setting", new TextButton("Game Setting", titleTextButtonStyle));
@@ -155,6 +154,8 @@ public class SettingScreen extends AbstractScreen {
         lines.put("music", new TextButton("Music: " + MusicManager.getInstance().getMuteAsText(), normalTextButtonStyle));
         lines.put("tileStyle", new TextButton("Tile Style: " + GameSetting.getInstance().getTileStyleAsText(), normalTextButtonStyle));
         lines.put("cheating", new TextButton("Cheating: " + GameSetting.getInstance().getCheatingAsText(), normalTextButtonStyle));
+        lines.put("about", new TextButton("About us", normalTextButtonStyle));
+        lines.put("back", new TextButton("BACK", normalTextButtonStyle));
 
         lines.get("music").addListener(new ClickListener(){
             @Override
@@ -180,8 +181,20 @@ public class SettingScreen extends AbstractScreen {
             }
         });
 
+        lines.get("back").addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                super.clicked(event, x, y);
+                startMain();
+            }
+        });
+
         curSelectedState = 2;
         changeSelectState();
+    }
+
+    private void startMain() {
+        ScreenManager.getInstance().showScreen(ScreenEnum.MAIN_MENU);
     }
 
     private void cheatingChange() {
@@ -199,10 +212,14 @@ public class SettingScreen extends AbstractScreen {
         lines.get("music").setText("Music: " + MusicManager.getInstance().getMuteAsText());
     }
 
+    private void about() {
+
+    }
+
     private int curSelectedState;
 
     private void UpLine() {
-        if (curSelectedState > 1) {
+        if (curSelectedState > 2) {
             curSelectedState--;
         }
         else {
@@ -216,13 +233,13 @@ public class SettingScreen extends AbstractScreen {
             curSelectedState++;
         }
         else {
-            curSelectedState = 1;
+            curSelectedState = 2;
         }
         changeSelectState();
     }
 
     private void changeSelectState() {
-        for (int i = 0; i < lines.size(); i++) {
+        for (int i = 1; i < lines.size(); i++) {
             TextButton t = getByIndex(i);
             t.setStyle(normalTextButtonStyle);
 
@@ -248,12 +265,20 @@ public class SettingScreen extends AbstractScreen {
             System.out.println("Move left");
             if (curSelectedState == 2)
                 musicStateChange();
+            else if (curSelectedState == 3)
+                tileStyleChange();
+            else if (curSelectedState == 4)
+                cheatingChange();
 
         }
         if(Gdx.input.isKeyJustPressed(Input.Keys.RIGHT)){
             System.out.println("Move right");
             if (curSelectedState == 2)
                 musicStateChange();
+            else if (curSelectedState == 3)
+                tileStyleChange();
+            else if (curSelectedState == 4)
+                cheatingChange();
 
         }
 
@@ -261,7 +286,14 @@ public class SettingScreen extends AbstractScreen {
             System.out.println("Enter || Space");
             if (curSelectedState == 2)
                 musicStateChange();
+            else if (curSelectedState == 3)
+                tileStyleChange();
+            else if (curSelectedState == 4)
+                cheatingChange();
+            else if (curSelectedState == 5)
+                about();
+            else
+                startMain();
         }
     }
-
 }

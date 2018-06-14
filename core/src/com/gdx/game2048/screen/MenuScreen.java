@@ -18,10 +18,10 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.gdx.game2048.manager.MusicManager;
 import com.gdx.game2048.manager.ScreenManager;
-import javafx.util.Pair;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class MenuScreen extends AbstractScreen {
 
@@ -58,7 +58,7 @@ public class MenuScreen extends AbstractScreen {
 
     private LinkedHashMap<String, TextButton> lines = new LinkedHashMap<>();
 
-    LinkedHashMap<Integer, Pair<String,String>> levelInfo;
+    LinkedHashMap<Integer, String> levelInfo;
     int curLevel = 3;
 
     LinkedHashMap<Integer, String> aiInfo;
@@ -75,16 +75,15 @@ public class MenuScreen extends AbstractScreen {
     public void buildStage() {
         batch = new SpriteBatch();
 
-        levelInfo = new LinkedHashMap<Integer, Pair<String, String>>();
-        levelInfo.put(3, new Pair<String, String>("3x3", "3x3"));
-        levelInfo.put(4, new Pair<String, String>("4x4", "4x4"));
-        levelInfo.put(5, new Pair<String, String>("5x5", "5x5"));
-        levelInfo.put(6, new Pair<String, String>("6x6", "6x6"));
+        levelInfo = new LinkedHashMap<Integer, String>();
+        levelInfo.put(3, "3x3");
+        levelInfo.put(4, "4x4");
+        levelInfo.put(5, "5x5");
+        levelInfo.put(6, "6x6");
 
         aiInfo = new LinkedHashMap<Integer, String>();
         aiInfo.put(1, "Dump AI");
         aiInfo.put(2, "Smart AI");
-        aiInfo.put(3, "Crazy AI");
 
         //Loading asset
         fontGenerator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/ClearSans-Bold.ttf"));
@@ -143,17 +142,17 @@ public class MenuScreen extends AbstractScreen {
         float imageSize = 240;
 
         // Step 7 : set position
-        int buttonPaddingMidX = width/4;
+        float buttonPaddingMidX = width/4.5f;
         float rootLine = height* 0.54f;
-        float linePadding = height* 0.1f;
+        float linePadding = height* 0.09f;
 
         nextLevelButton.setPosition(screenMidX + buttonPaddingMidX - iconSize_Width/2 , rootLine, Align.center);
 
         preLevelButton.setPosition(screenMidX - buttonPaddingMidX + iconSize_Width/2 , rootLine, Align.center);
 
-        nextAIButton.setPosition(screenMidX + buttonPaddingMidX*1.3f - iconSize_Width/2  , rootLine - linePadding*2, Align.center);
+        nextAIButton.setPosition(screenMidX + buttonPaddingMidX*1.4f - iconSize_Width/2  , rootLine - linePadding*2, Align.center);
 
-        preAIButton.setPosition(screenMidX - buttonPaddingMidX*1.3f + iconSize_Width/2  , rootLine - linePadding*2, Align.center);
+        preAIButton.setPosition(screenMidX - buttonPaddingMidX*1.4f + iconSize_Width/2  , rootLine - linePadding*2, Align.center);
 
         imageLevel.setSize(imageSize, imageSize);
         imageLevel.setPosition(width*0.5f , height*0.78f, Align.center);
@@ -178,8 +177,8 @@ public class MenuScreen extends AbstractScreen {
             curLevel = 3;
         }
 
-        lines.get("level").setText(levelInfo.get(curLevel).getKey());
-        imageLevel.setDrawable(gameSkin.getDrawable(levelInfo.get(curLevel).getValue()));
+        lines.get("level").setText(levelInfo.get(curLevel));
+        imageLevel.setDrawable(gameSkin.getDrawable(levelInfo.get(curLevel)));
     }
 
     private void preLevel() {
@@ -189,12 +188,12 @@ public class MenuScreen extends AbstractScreen {
             curLevel = 6;
         }
 
-        lines.get("level").setText(levelInfo.get(curLevel).getKey());
-        imageLevel.setDrawable(gameSkin.getDrawable(levelInfo.get(curLevel).getValue()));
+        lines.get("level").setText(levelInfo.get(curLevel));
+        imageLevel.setDrawable(gameSkin.getDrawable(levelInfo.get(curLevel)));
     }
 
     private void nextAI() {
-        if (curAI != 3) {
+        if (curAI != aiInfo.size()) {
             curAI++;
         } else {
             curAI = 1;
@@ -207,7 +206,7 @@ public class MenuScreen extends AbstractScreen {
         if (curAI != 1) {
             curAI--;
         } else {
-            curAI = 3;
+            curAI = aiInfo.size();
         }
 
         lines.get("ai").setText(aiInfo.get(curAI));
@@ -220,7 +219,7 @@ public class MenuScreen extends AbstractScreen {
         preLevelButton = new com.badlogic.gdx.scenes.scene2d.ui.Button(gameSkin.getDrawable("ic_pre"), gameSkin.getDrawable("ic_pre"));
         nextAIButton = new com.badlogic.gdx.scenes.scene2d.ui.Button(gameSkin.getDrawable("ic_next"), gameSkin.getDrawable("ic_next"));
         preAIButton = new Button(gameSkin.getDrawable("ic_pre"), gameSkin.getDrawable("ic_pre"));
-        imageLevel = new Image(gameSkin.getDrawable(levelInfo.get(curLevel).getValue()));
+        imageLevel = new Image(gameSkin.getDrawable(levelInfo.get(curLevel)));
 
         //Step 5: add event
         nextLevelButton.addListener(new ClickListener(){
@@ -250,6 +249,7 @@ public class MenuScreen extends AbstractScreen {
                 super.clicked(event, x, y);
                 preAI();
             }
+
         });
 
         fontParameter.size = Gdx.graphics.getWidth() / 11;
@@ -265,12 +265,13 @@ public class MenuScreen extends AbstractScreen {
         selectedTextButtonStyle = new TextButton.TextButtonStyle();
         selectedTextButtonStyle.font = selectedTextFont;
 
-        lines.put("level", new TextButton(levelInfo.get(curLevel).getKey(), normalTextButtonStyle));
+        lines.put("level", new TextButton(levelInfo.get(curLevel), normalTextButtonStyle));
         lines.put("startGame", new TextButton("Start Game", normalTextButtonStyle));
         lines.put("ai", new TextButton(aiInfo.get(curAI), normalTextButtonStyle));
         lines.put("startAI", new TextButton("Play With Help" , normalTextButtonStyle));
-
         lines.put("highScore", new TextButton("High Score", normalTextButtonStyle));
+        lines.put("setting", new TextButton("Setting", normalTextButtonStyle));
+
 
         lines.get("startGame").addListener(new ClickListener(){
             @Override
@@ -292,12 +293,24 @@ public class MenuScreen extends AbstractScreen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 super.clicked(event, x, y);
+                startScore();
+            }
+        });
+
+        lines.get("highScore").addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                super.clicked(event, x, y);
                 startSetting();
             }
         });
 
         curSelectedState = 1;
         changeSelectState();
+    }
+
+    private void startScore() {
+        ScreenManager.getInstance().showScreen(ScreenEnum.SCORE);
     }
 
     private void startSetting() {
@@ -380,6 +393,10 @@ public class MenuScreen extends AbstractScreen {
                 startGame();
             else if (curSelectedState == 4)
                 startAI();
+            else if (curSelectedState == 5)
+                startScore();
+            else if (curSelectedState == 6)
+                startSetting();
         }
     }
 
