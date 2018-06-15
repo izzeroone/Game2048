@@ -43,7 +43,7 @@ public class SettingScreen extends AbstractScreen {
     TextButton.TextButtonStyle selectedTextButtonStyle;
     TextButton.TextButtonStyle titleTextButtonStyle;
 
-    private LinkedHashMap<String, TextButton> lines = new LinkedHashMap<>();
+    private LinkedHashMap<String, TextButton> lines = new LinkedHashMap<String, TextButton>();
 
     private long lastFPSTime = System.currentTimeMillis();
     public boolean refreshLastTime = false;
@@ -155,6 +155,7 @@ public class SettingScreen extends AbstractScreen {
         lines.put("sound", new TextButton("Sound: " + MusicManager.getInstance().getMuteSoundAsText(), normalTextButtonStyle));
         lines.put("tileStyle", new TextButton("Tile Style: " + GameSetting.getInstance().getTileStyleAsText(), normalTextButtonStyle));
         lines.put("cheating", new TextButton("Cheating: " + GameSetting.getInstance().getCheatingAsText(), normalTextButtonStyle));
+        lines.put("dark", new TextButton("Background Color: " + GameSetting.getInstance().getDarkAsText(), normalTextButtonStyle));
         lines.put("about", new TextButton("About us", normalTextButtonStyle));
         lines.put("back", new TextButton("BACK", normalTextButtonStyle));
 
@@ -190,6 +191,14 @@ public class SettingScreen extends AbstractScreen {
             }
         });
 
+        lines.get("dark").addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                super.clicked(event, x, y);
+                darkChange();
+            }
+        });
+
         lines.get("about").addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -208,6 +217,13 @@ public class SettingScreen extends AbstractScreen {
 
         curSelectedState = 2;
         changeSelectState();
+    }
+
+    private void darkChange() {
+        MusicManager.getInstance().playSound("change");
+
+        GameSetting.getInstance().setDark(! GameSetting.getInstance().getDark());
+        lines.get("dark").setText("Background Color: " + GameSetting.getInstance().getDarkAsText());
     }
 
     private void startAbout() {
@@ -307,6 +323,8 @@ public class SettingScreen extends AbstractScreen {
                 tileStyleChange();
             else if (curSelectedState == 5)
                 cheatingChange();
+            else if (curSelectedState == 6)
+                darkChange();
 
         }
         if(Gdx.input.isKeyJustPressed(Input.Keys.RIGHT)){
@@ -319,7 +337,8 @@ public class SettingScreen extends AbstractScreen {
                 tileStyleChange();
             else if (curSelectedState == 5)
                 cheatingChange();
-
+            else if (curSelectedState == 6)
+                darkChange();
         }
 
         if(Gdx.input.isKeyJustPressed(Input.Keys.ENTER) || Gdx.input.isKeyJustPressed(Input.Keys.SPACE)){
@@ -333,6 +352,8 @@ public class SettingScreen extends AbstractScreen {
             else if (curSelectedState == 5)
                 cheatingChange();
             else if (curSelectedState == 6)
+                darkChange();
+            else if (curSelectedState == 7)
                 startAbout();
             else
                 startMain();

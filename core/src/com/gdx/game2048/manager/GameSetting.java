@@ -9,6 +9,14 @@ public class GameSetting {
 
     private boolean tileStyle; // true = Circle, false = square
     private boolean cheating;
+    private boolean dark;
+
+    public String getDarkAsText() {
+        if (dark)
+            return "DARK";
+        else
+            return "LIGHT";
+    }
 
     public String getCheatingAsText() {
         if (cheating)
@@ -34,11 +42,13 @@ public class GameSetting {
     private void loadData() {
         tileStyle = prefs.getBoolean("tileStyle", false);
         cheating = prefs.getBoolean("cheating", false);
+        cheating = prefs.getBoolean("dark", false);
     }
 
     public void changeSetting() {
         prefs.putBoolean("tileStyle", tileStyle);
         prefs.putBoolean("cheating", cheating);
+        prefs.putBoolean("dark", dark);
         prefs.putBoolean("muteMusic", MusicManager.getInstance().isMuteMusic());
         prefs.putBoolean("muteSound", MusicManager.getInstance().isMuteSound());
 
@@ -68,8 +78,16 @@ public class GameSetting {
         return cheating;
     }
 
+    public boolean getDark() {
+        return dark;
+    }
+
     public void setCheating(boolean cheating) {
         this.cheating = cheating;
+        changeSetting();
+    }
+    public void setDark(boolean dark) {
+        this.dark = dark;
         changeSetting();
     }
 

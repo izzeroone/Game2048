@@ -55,7 +55,7 @@ public class MenuScreen extends AbstractScreen {
     TextButton.TextButtonStyle normalTextButtonStyle;
     TextButton.TextButtonStyle selectedTextButtonStyle;
 
-    private LinkedHashMap<String, TextButton> lines = new LinkedHashMap<>();
+    private LinkedHashMap<String, TextButton> lines = new LinkedHashMap<String, TextButton>();
 
     LinkedHashMap<Integer, String> levelInfo;
     int curLevel = 3;
@@ -81,7 +81,7 @@ public class MenuScreen extends AbstractScreen {
         levelInfo.put(6, "6x6");
 
         aiInfo = new LinkedHashMap<Integer, String>();
-        aiInfo.put(1, "Dump AI");
+        aiInfo.put(1, "Dumb AI");
         aiInfo.put(2, "Smart AI");
 
         //Loading asset

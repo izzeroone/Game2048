@@ -56,7 +56,7 @@ public class ScoreScreen extends AbstractScreen {
     TextButton.TextButtonStyle highestTextButtonStyle;
 
 
-    private LinkedList<TextButton> lines = new LinkedList<>();
+    private LinkedList<TextButton> lines = new LinkedList<TextButton>();
     TextButton highestScore;
 
     //Timing for draw
@@ -181,7 +181,7 @@ public class ScoreScreen extends AbstractScreen {
         // Lines text
         lines.add(new TextButton("         Time          Score", normalTextButtonStyle));
 
-        List<String> lineStrs = new LinkedList<>();
+        List<String> lineStrs = new LinkedList<String>();
         for (MyEntry<String,Integer> e: ScoreManager.getInstance().getListScore()) {
             if (e.getKey() != null) {
                 lineStrs.add(e.getKey()+ "             " + String.format(new Locale("EN"),"%04d",e.getValue()));
