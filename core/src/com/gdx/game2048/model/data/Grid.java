@@ -37,7 +37,7 @@ public class Grid {
         if (field[x][y] == null) {
             int value = 1;
             if (GameSetting.getInstance().getCheating())
-                value = Math.random() <= 0.9 ? 7 : 8;
+                value = Math.random() <= 0.9 ? 4 : 5;
             else
                 value = Math.random() <= 0.9 ? 1 : 2;
             Tile tile = new Tile(new Cell(x, y), value);

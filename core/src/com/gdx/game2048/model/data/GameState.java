@@ -8,5 +8,5 @@ public enum GameState {
     NORMAL,
     WIN,
     LOST,
-    READY
+    READY,
 }

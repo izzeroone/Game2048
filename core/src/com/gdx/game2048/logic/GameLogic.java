@@ -119,6 +119,7 @@ public class GameLogic {
         animationGrid = new AnimationGrid(numCellX, numCellY);
         //set up score
         score = 0;
+        grid.score = 0;
         //add start title
         addStartTiles();
         //show the winGrid

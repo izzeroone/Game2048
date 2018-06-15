@@ -55,42 +55,42 @@ cell3
   index: -1
 cell4
   rotate: false
-  xy: 608, 2
+  xy: 1214, 2
   size: 200, 200
   orig: 200, 200
   offset: 0, 0
   index: -1
 cell5
   rotate: false
-  xy: 810, 204
+  xy: 608, 2
   size: 200, 200
   orig: 200, 200
   offset: 0, 0
   index: -1
 cell6
   rotate: false
-  xy: 810, 2
+  xy: 810, 204
   size: 200, 200
   orig: 200, 200
   offset: 0, 0
   index: -1
 cell7
   rotate: false
-  xy: 1012, 204
+  xy: 810, 2
   size: 200, 200
   orig: 200, 200
   offset: 0, 0
   index: -1
 cell8
   rotate: false
-  xy: 1012, 2
+  xy: 1012, 204
   size: 200, 200
   orig: 200, 200
   offset: 0, 0
   index: -1
 cell9
   rotate: false
-  xy: 1214, 204
+  xy: 1012, 2
   size: 200, 200
   orig: 200, 200
   offset: 0, 0
@@ -104,7 +104,7 @@ ic_back
   index: -1
 ic_home
   rotate: false
-  xy: 1214, 2
+  xy: 1214, 204
   size: 200, 200
   orig: 200, 200
   offset: 0, 0
