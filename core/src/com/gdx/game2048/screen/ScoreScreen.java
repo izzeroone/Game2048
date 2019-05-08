@@ -18,7 +18,6 @@ import com.badlogic.gdx.utils.Align;
 import com.gdx.game2048.manager.MyEntry;
 import com.gdx.game2048.manager.ScoreManager;
 import com.gdx.game2048.manager.ScreenManager;
-import javafx.util.Pair;
 
 import java.util.*;
 

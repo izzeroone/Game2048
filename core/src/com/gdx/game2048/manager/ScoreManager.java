@@ -2,7 +2,6 @@ package com.gdx.game2048.manager;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
-import javafx.util.Pair;
 
 import java.util.*;
 
